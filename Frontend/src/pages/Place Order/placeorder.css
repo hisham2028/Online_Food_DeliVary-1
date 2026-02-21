@@ -1,0 +1,218 @@
+/* =====  MODERN PLACE-ORDER 2026  ===== */
+:root{
+  --accent: #ff4d4d;
+  --accent-dark: #ff3333;
+  --bg: #fafafa;
+  --card-bg: rgba(255,255,255,.72);
+  --text: #222;
+  --text-light: #555;
+  --border: rgba(0,0,0,.08);
+  --radius: 20px;
+  --transition: .35s cubic-bezier(.34,1.56,.64,1);
+}
+
+.place-order{
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(30px,4vw,60px);
+  padding: clamp(30px,6vh,80px) clamp(15px,4vw,80px);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.place-order-left,
+.place-order-right{
+  flex: 1;
+  min-width: 300px;
+}
+
+/* ----  headings  ---- */
+.title{
+  font-size: clamp(1.5rem,2.5vw,2rem);
+  font-weight: 700;
+  letter-spacing: -.5px;
+  margin: 0 0 16px;
+  color: var(--text);
+  position: relative;
+  width: fit-content;
+}
+
+/* ----  inputs  ---- */
+.multi-fields{
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.multi-fields input{
+  flex: 1;
+}
+.place-order input{
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  background: var(--card-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.place-order input:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255,77,77,.18);
+}
+/* invalid state */
+.place-order input:invalid{
+  border-color: #ffa39e;
+}
+.place-order input:focus:invalid{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255,77,77,.18);
+}
+
+/* ----  cart total card  ---- */
+.cart-total{
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.05);
+  position: sticky;
+  top: 30px;
+}
+.cart-total h2{
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cart-total h2::before{
+  content:"";
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.cart-total-details{
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+  font-size: 15px;
+  color: var(--text-light);
+}
+.cart-total-details.total-amount{
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.cart-total button{
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.cart-total button:hover{
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+}
+.cart-total button:disabled{
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ----  payment methods  ---- */
+.payment-methods{
+  margin-top: 32px;
+}
+.payment-method{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: rgba(0,0,0,.03);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.payment-method:hover{
+  background: rgba(0,0,0,.06);
+}
+.payment-method .selector{
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  position: relative;
+  transition: border-color var(--transition);
+}
+.payment-method .selector.active{
+  border-color: var(--accent);
+}
+.payment-method .selector.active::after{
+  content:"";
+  position: absolute;
+  inset: 3px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.payment-method p{
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-light);
+}
+
+/* ----  helpers  ---- */
+.loading{
+  text-align: center;
+  padding: 60px;
+  color: var(--text-light);
+}
+.success-message{
+  color: #52c41a;
+  background: rgba(82,196,26,.12);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 1px solid rgba(82,196,26,.2);
+}
+
+/* =====  Responsive  ===== */
+@media (max-width: 900px){
+  .place-order{
+    flex-direction: column;
+  }
+  .cart-total{
+    position: static;
+  }
+}
+
+@media (max-width: 480px){
+  .multi-fields{
+    flex-direction: column;
+    gap: 12px;
+  }
+  .title{
+    font-size: 1.4rem;
+  }
+  .cart-total button{
+    padding: 14px;
+    font-size: .95rem;
+  }
+}
