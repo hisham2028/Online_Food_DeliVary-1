@@ -11,7 +11,7 @@
 }
 
 .cart {
-  margin-top: clamp(60px, 8vh, 100px);
+  margin-top: 80px;
   padding: 0 4vw;
 }
 
