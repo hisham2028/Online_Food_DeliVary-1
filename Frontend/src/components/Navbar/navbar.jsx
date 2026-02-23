@@ -57,11 +57,11 @@ const Navbar = ({ setShowLogin }) => {
           onClick={() => handleMenuItemClick('home')} 
           className={activeMenu === "home" ? "active" : ""}
         >home</Link>
-        <a 
-          href='#explore-menu' 
+        <Link 
+          to='/menu' 
           onClick={() => handleMenuItemClick('menu')} 
           className={activeMenu === "menu" ? "active" : ""}
-        >menu</a>
+        >menu</Link>
         <a 
           href='#footer' 
           onClick={() => handleMenuItemClick('contact')} 

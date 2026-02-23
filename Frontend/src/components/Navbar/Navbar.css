@@ -129,7 +129,7 @@
 }
 
 /* Cart Icon */
-.navbar-cart {
+.navbar-cart-icon {
   position: relative;
   cursor: pointer;
   padding: 8px;
@@ -137,12 +137,12 @@
   transition: all 0.3s ease;
 }
 
-.navbar-cart:hover {
+.navbar-cart-icon:hover {
   background: #f8f9fa;
   transform: translateY(-2px);
 }
 
-.navbar-cart .dot {
+.navbar-cart-icon .dot {
   position: absolute;
   top: 2px;
   right: 2px;

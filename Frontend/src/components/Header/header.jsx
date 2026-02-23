@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './header.css';
 
 const Header = () => {
@@ -27,12 +28,12 @@ const Header = () => {
         <div className="header-badge">Now Open: 24/7 Delivery</div>
         <h2>Order your <br/> favorite food</h2>
         <p>Crafted with the finest ingredients and culinary expertise, delivered straight to your door.</p>
-        
+
         <div className="header-btns">
-          <a href="#food-display">
+          <Link to="/menu">
             <button className="view-menu-btn">View Menu</button>
-          </a>
-         
+          </Link>
+
         </div>
       </div>
 

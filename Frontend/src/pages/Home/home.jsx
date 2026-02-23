@@ -1,18 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './home.css'
 import Header from '../../components/header/header'
-import ExploreMenu from '../../components/Explore-menu/explore-menu'
+import FeaturedCategories from '../../components/FeaturedCategories/featured-categories'
 import FoodDisply from '../../components/FoodDisplay/FoodDisply'
 import AppDownload from '../../components/AppDownload/AppDownload'
 
 const Home = () => {
-  const [category,setCategory] = useState("All");
-
   return (
     <div>
       <Header/>
-      <ExploreMenu category={category} setCategory={setCategory}/>
-      <FoodDisply category={category}/>
+      <FeaturedCategories/>
+      <FoodDisply category="All"/>
       <AppDownload/>
     </div>
   )

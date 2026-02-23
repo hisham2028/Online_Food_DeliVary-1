@@ -1,35 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/footer";
+import Login from "./components/Login/login";
+import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
+import Home from "./pages/Home/home";
+import Cart from "./pages/Cart/cart";
+import PlaceOrder from "./pages/Place Order/placeorder";
+import Verify from './pages/verify/verify';
+import MyOrders from './pages/myOrders/myorders';
+import Menu from './pages/Menu/menu';
+
+const App = () => {
+  const url = "http://localhost:4002";
+  
+  const [showLogin, setShowLogin] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      {/* Toast notifications for success/error messages */}
+      <ToastContainer position="top-center" autoClose={3000} />
 
-export default App
+      {/* Conditional Popups */}
+      {showLogin && (
+        <Login 
+          setShowLogin={setShowLogin} 
+          setShowForgotPassword={setShowForgotPassword} 
+        />
+      )}
+      
+      {showForgotPassword && (
+        <ForgotPassword 
+          setShowForgotPassword={setShowForgotPassword} 
+          url={url} 
+        />
+      )}
+
+      <div className="app">
+        <Navbar setShowLogin={setShowLogin} />
+        
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/order" element={<PlaceOrder />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path='/myorders' element={<MyOrders />} />
+          <Route path='/menu' element={<Menu />} />
+          
+          {/* The :token dynamic parameter allows you to capture the 
+              unique ID sent in the reset email.
+          */}
+        </Routes>
+      </div>
+      
+      <Footer />
+    </>
+  );
+};
+
+export default App;
