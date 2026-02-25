@@ -1,0 +1,90 @@
+.header {
+  width: 100%;
+  height: 38vw; /* Slightly taller for a more premium feel */
+  max-height: 500px;
+  margin: 80px auto 0;
+  position: relative;
+  border-radius: 20px; /* Softer corners */
+  overflow: hidden;
+  background-color: #111; /* Fallback color */
+}
+
+/* Sliding Background Layers */
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out, transform 6s ease-out;
+  z-index: 1;
+}
+
+/* Active Image Effect */
+.header-bg.active {
+  opacity: 1;
+  transform: scale(1.05); /* Subtle "Ken Burns" zoom effect */
+}
+
+/* Dark overlay to make text pop */
+.header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.7), transparent);
+  z-index: 2;
+}
+
+.headercontent {
+  position: absolute;
+  z-index: 3; /* Above the images and overlay */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5vw;
+  max-width: 50%;
+  bottom: 20%;
+  left: 6%;
+  animation: fadeIn 1.2s ease-out;
+}
+
+.headercontent h2 {
+  font-weight: 800;
+  color: white;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.headercontent p {
+  color: #f0f0f0;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  line-height: 1.6;
+  max-width: 450px;
+}
+
+.headercontent button {
+  border: none;
+  color: #ff4d4d;
+  font-weight: 700;
+  padding: 14px 35px;
+  background-color: white;
+  font-size: 1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.headercontent button:hover {
+  background-color: #ff4d4d;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 77, 77, 0.3);
+}

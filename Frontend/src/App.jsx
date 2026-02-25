@@ -6,19 +6,18 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/footer";
 import Login from "./components/Login/login";
-import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
 import Home from "./pages/Home/home";
 import Cart from "./pages/Cart/cart";
 import PlaceOrder from "./pages/Place Order/placeorder";
 import Verify from './pages/verify/verify';
 import MyOrders from './pages/myOrders/myorders';
 import Menu from './pages/Menu/menu';
+import BackToTop from './components/BackToTop/BackToTop';
 
 const App = () => {
   const url = "http://localhost:4002";
   
   const [showLogin, setShowLogin] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   return (
     <>
@@ -29,14 +28,6 @@ const App = () => {
       {showLogin && (
         <Login 
           setShowLogin={setShowLogin} 
-          setShowForgotPassword={setShowForgotPassword} 
-        />
-      )}
-      
-      {showForgotPassword && (
-        <ForgotPassword 
-          setShowForgotPassword={setShowForgotPassword} 
-          url={url} 
         />
       )}
 
@@ -58,6 +49,7 @@ const App = () => {
       </div>
       
       <Footer />
+      <BackToTop />
     </>
   );
 };
