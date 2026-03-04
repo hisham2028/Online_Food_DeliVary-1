@@ -1,11 +1,11 @@
 /* ===== 0. Global tokens ===== */
 :root {
-  --primary: #FF4C4C;
-  --primary-dark: #ff4c24;
-  --bg: #FFF8F2;
-  --text: #222;
-  --grey: #555;
-  --line: #e2e2e2;
+  --primary: var(--primary-500);
+  --primary-dark: var(--primary-600);
+  --bg: var(--bg-primary);
+  --text: var(--text-primary);
+  --grey: var(--text-secondary);
+  --line: var(--border-light);
   --radius: 8px;
   --transition: .25s ease-in-out;
 }
@@ -55,11 +55,11 @@
 .cart-total,
 .cart-promocode {
   flex: 1 1 280px; /* grow, shrink, base */
-  background: #fff;
+  background: var(--bg-primary);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  box-shadow: 0 2px 8px var(--shadow-sm);
 }
 
 .cart-total-details {
@@ -105,14 +105,14 @@
   padding: 12px 20px;
   border: none;
   border-radius: var(--radius);
-  background: #000;
-  color: #fff;
+  background: var(--neutral-700);
+  color: var(--text-inverse);
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition);
 }
 .cart-promocode-input button:hover {
-  background: #333;
+  background: var(--neutral-800);
 }
 
 /* ===== 4. Micro-typography ===== */

@@ -1,6 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; 
-import { StoreContext } from '../../context/StoreContext';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; 
+import { useStore } from '../../context/StoreContext';
 import { assets } from '../../assets/assets';
 import './Navbar.css';
 
@@ -13,8 +13,9 @@ const Navbar = ({ setShowLogin }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
+  const { getTotalCartAmount, token, setToken } = useStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Scroll effect for sticky navbar
   useEffect(() => {
@@ -54,7 +55,7 @@ const Navbar = ({ setShowLogin }) => {
       <ul className={`navbar-menu ${isMobileMenuOpen ? 'active' : ''}`}>
         <Link 
           to='/' 
-          onClick={() => handleMenuItemClick('home')} 
+          onClick={() => { navigate('/'); window.scrollTo(0, 0); handleMenuItemClick('home'); }} 
           className={activeMenu === "home" ? "active" : ""}
         >home</Link>
         <Link 
@@ -62,6 +63,13 @@ const Navbar = ({ setShowLogin }) => {
           onClick={() => handleMenuItemClick('menu')} 
           className={activeMenu === "menu" ? "active" : ""}
         >menu</Link>
+        {location.pathname === '/' && (
+          <a 
+            href='#OurServices' 
+            onClick={() => handleMenuItemClick('services')} 
+            className={activeMenu === "services" ? "active" : ""}
+          >our services</a>
+        )}
         <a 
           href='#footer' 
           onClick={() => handleMenuItemClick('contact')} 
@@ -118,9 +126,11 @@ const Navbar = ({ setShowLogin }) => {
           </div>
         )}
 
-        {/* Hamburger menu for mobile (optional) */}
-        <div className="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          <div className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></div>
+        {/* Hamburger menu for mobile */}
+        <div className={`mobile-menu-toggle ${isMobileMenuOpen ? 'open' : ''}`} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
       </div>
     </div>

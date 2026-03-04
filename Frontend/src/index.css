@@ -1,5 +1,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
+/* ===== PROFESSIONAL COLOR SYSTEM ===== */
+:root {
+  /* Primary Brand Colors */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;    /* Main primary - Sky Blue */
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+
+  /* Secondary Colors - Warm Orange/Amber */
+  --secondary-50: #fffbeb;
+  --secondary-100: #fef3c7;
+  --secondary-200: #fde68a;
+  --secondary-300: #fcd34d;
+  --secondary-400: #fbbf24;
+  --secondary-500: #f59e0b;  /* Warm amber for accents */
+  --secondary-600: #d97706;
+  --secondary-700: #b45309;
+  --secondary-800: #92400e;
+  --secondary-900: #78350f;
+
+  /* Neutral Colors */
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+
+  /* Semantic Colors */
+  --success: #10b981;   /* Emerald */
+  --success-light: #d1fae5;
+  --warning: #f59e0b;   /* Amber */
+  --warning-light: #fef3c7;
+  --error: #ef4444;     /* Red */
+  --error-light: #fee2e2;
+  --info: #3b82f6;      /* Blue */
+  --info-light: #dbeafe;
+
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: var(--neutral-50);
+  --bg-tertiary: var(--neutral-100);
+  --bg-accent: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+
+  /* Text Colors */
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-600);
+  --text-tertiary: var(--neutral-500);
+  --text-inverse: #ffffff;
+
+  /* Border Colors */
+  --border-light: var(--neutral-200);
+  --border-medium: var(--neutral-300);
+  --border-dark: var(--neutral-400);
+
+  /* Shadow Colors */
+  --shadow-sm: rgba(0, 0, 0, 0.05);
+  --shadow-md: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.15);
+  --shadow-xl: rgba(0, 0, 0, 0.25);
+
+  /* Special Colors for Food Theme */
+  --food-warm: #fef3c7;      /* Warm cream */
+  --food-fresh: #dcfce7;     /* Fresh green */
+  --food-spicy: #fee2e2;     /* Spicy red */
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
+  --gradient-warm: linear-gradient(160deg, #FFFFFF 0%, #fef3c7 50%, #fde68a 100%);
+  --gradient-cool: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -9,16 +92,23 @@
 }
 
 body {
-  background-color: #ffffff;
-  background-image: linear-gradient(160deg, #FFFFFF 0%, #FFEFBA 50%, #FFD1B3 100%);
-  color: #2d3436;
+  background: var(--gradient-warm);
+  color: var(--text-primary);
   min-height: 100vh;
-  background-attachment: fixed; /* Keeps bg steady while scrolling */
+  background-attachment: fixed;
+}
+.container {
+  max-width: 1200px; /* Adjust this number to shrink or expand the content area */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px; /* Prevents text from hitting edges on mobile */
+  padding-right: 20px;
 }
 .app {
-  width: 80%;
+  width: 100%;
   margin: 0 auto;
   min-height: 100vh;
+  padding-top: 40px; /* Minimal gap after fixed navbar */
 }
 
 /* Responsive container for smaller screens */

@@ -1,10 +1,12 @@
-import { createContext, useState, useEffect, useMemo } from "react";
+import { createContext, useState, useEffect, useMemo, useContext } from "react";
 import axios from "axios";
 
-export const StoreContext = createContext(null);
+const StoreContext = createContext(null);
+
+export const useStore = () => useContext(StoreContext);
 
 const StoreContextProvider = ({ children }) => {
-  const url = "http://localhost:4002";
+  const url = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   const [token, setToken] = useState("");
   const [food_list, setFoodlist] = useState([]); // always array
@@ -74,13 +76,13 @@ const StoreContextProvider = ({ children }) => {
   };
 
   // ================= REMOVE FROM CART =================
-  const removeFromCart = async (itemId) => {
+  const removeFromCart = async (itemId, completely = false) => {
     setCartItems((prev) => {
       const updated = { ...prev };
-      if (updated[itemId] > 1) {
-        updated[itemId] -= 1;
-      } else {
+      if (completely || updated[itemId] <= 1) {
         delete updated[itemId];
+      } else {
+        updated[itemId] -= 1;
       }
       return updated;
     });

@@ -8,11 +8,13 @@ import AppDownload from '../../components/AppDownload/AppDownload'
 
 const Home = () => {
   return (
-    <div>
+    <div id="top">
       <Header/>
       <FeaturedCategories/>
       <SpecialSections/>
-      <OurServices/>
+      <div id="OurServices">
+        <OurServices/>
+      </div>
       <AppDownload/>
     </div>
   )

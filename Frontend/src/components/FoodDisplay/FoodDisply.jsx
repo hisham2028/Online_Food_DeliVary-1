@@ -1,11 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import './fooddisply.css';
-import { StoreContext } from '../../context/StoreContext';
+import { useStore } from '../../context/StoreContext';
 import FoodItem from '../Food Item/FoodItem';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const FoodDisplay = ({ category }) => {
-  const { food_list } = useContext(StoreContext);
+  const { food_list } = useStore();
+
+  // For home page (category "All"), show top selling items (sorted by price descending, limited to 8)
+  const displayItems = category === "All" 
+    ? food_list.slice().sort((a, b) => b.price - a.price).slice(0, 8)
+    : food_list.filter(item => category === "All" || category === item.category);
 
   // Animation variants for the container
   const containerVariants = {
@@ -27,7 +32,7 @@ const FoodDisplay = ({ category }) => {
 
   return (
     <div className="food-display" id='food-display'>
-      <h2>Top Dishes on the menu</h2>
+      <h2>Top Selling Items</h2>
       
       <motion.div 
         className="food-display-list"
@@ -36,8 +41,7 @@ const FoodDisplay = ({ category }) => {
         animate="show"
       >
         <AnimatePresence mode='popLayout'>
-          {food_list.map((item) => {
-            if (category === "All" || category === item.category) {
+          {displayItems.map((item) => {
               return (
                 <motion.div
                   layout
@@ -56,8 +60,6 @@ const FoodDisplay = ({ category }) => {
                   />
                 </motion.div>
               )
-            }
-            return null;
           })}
         </AnimatePresence>
       </motion.div>

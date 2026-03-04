@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import './Fooditem.css';
 import { assets } from '../../assets/assets';
-import { StoreContext } from '../../context/StoreContext';
+import { useStore } from '../../context/StoreContext';
 
 function FoodItem({ id, name, price, description, image }) {
-    const { cartItems = {}, addToCart, removeFromCart, url } = useContext(StoreContext);
+    const { cartItems = {}, addToCart, removeFromCart, url } = useStore();
     const quantity = (cartItems && cartItems[id]) || 0;
 
     return (
@@ -48,11 +48,6 @@ function FoodItem({ id, name, price, description, image }) {
             <div className='food-item-info'>
                 <div className='food-item-name-rating'>
                     <p className='food-item-name'>{name}</p>
-                    <img 
-                        className='food-item-rating' 
-                        src={assets.rating_starts} 
-                        alt="rating" 
-                    />
                 </div>
                 <p className='food-item-desc'>{description}</p>
                 <div className='food-item-bottom'>

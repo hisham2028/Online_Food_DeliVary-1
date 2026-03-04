@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,9 +14,11 @@ import Verify from './pages/verify/verify';
 import MyOrders from './pages/myOrders/myorders';
 import Menu from './pages/Menu/menu';
 import BackToTop from './components/BackToTop/BackToTop';
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 
 const App = () => {
   const url = "http://localhost:4002";
+  const location = useLocation();
   
   const [showLogin, setShowLogin] = useState(false);
 
@@ -33,19 +36,46 @@ const App = () => {
 
       <div className="app">
         <Navbar setShowLogin={setShowLogin} />
+        <ScrollToTop />
         
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/order" element={<PlaceOrder />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path='/myorders' element={<MyOrders />} />
-          <Route path='/menu' element={<Menu />} />
-          
-          {/* The :token dynamic parameter allows you to capture the 
-              unique ID sent in the reset email.
-          */}
-        </Routes>
+        
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <motion.div
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Home />
+              </motion.div>
+            } />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/order" element={<PlaceOrder />} />
+            <Route path="/verify" element={
+              <motion.div
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Verify />
+              </motion.div>
+            } />
+            <Route path='/myorders' element={<MyOrders />} />
+            <Route path='/menu' element={
+              <motion.div
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Menu />
+              </motion.div>
+            } />
+          </Routes>
+        </AnimatePresence>
       </div>
       
       <Footer />

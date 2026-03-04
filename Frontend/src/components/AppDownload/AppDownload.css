@@ -1,0 +1,87 @@
+/* AppDownload.css */
+.app-download {
+    margin: 100px auto;
+    max-width: 1200px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.app-download h2 {
+    color: #1a1a1a;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.app-download p {
+    color: #4a4a4a;
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.app-download-platforms {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.app-download-platforms img {
+    width: 180px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.app-download-platforms img:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-download {
+        margin: 60px auto;
+        padding: 0 15px;
+    }
+
+    .app-download h2 {
+        font-size: 2rem;
+    }
+
+    .app-download p {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .app-download-platforms {
+        gap: 20px;
+    }
+
+    .app-download-platforms img {
+        width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-download {
+        margin: 40px auto;
+    }
+
+    .app-download h2 {
+        font-size: 1.8rem;
+    }
+
+    .app-download-platforms {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .app-download-platforms img {
+        width: 180px;
+    }
+}

@@ -1,11 +1,11 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './placeorder.css';
-import { StoreContext } from '../../context/StoreContext';
+import { useStore } from '../../context/StoreContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const PlaceOrder = () => {
-    const { getTotalCartAmount, token, food_list, cartItems, url } = useContext(StoreContext);
+    const { getTotalCartAmount, token, food_list, cartItems, url } = useStore();
     const navigate = useNavigate();
     const [method, setMethod] = useState("cod");
 
@@ -28,12 +28,10 @@ const PlaceOrder = () => {
     };
 
     useEffect(() => {
-        if (!token) {
-            navigate('/cart');
-        } else if (getTotalCartAmount() === 0) {
+        if (getTotalCartAmount() === 0) {
             navigate('/cart');
         }
-    }, [token, getTotalCartAmount, navigate]); 
+    }, [getTotalCartAmount, navigate]); 
 
     const placeOrder = async (event) => {
         event.preventDefault();
