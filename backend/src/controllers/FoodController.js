@@ -170,3 +170,132 @@ class FoodController {
 }
 
 export default new FoodController();
+import FoodService from "../services/FoodService.js";
+
+class FoodController {
+  constructor() {
+    this.foodService = new FoodService();
+  }
+
+  addFood = async (req, res) => {
+    try {
+      const food = await this.foodService.addFood(req.body, req.file);
+      res.status(201).json({ 
+        success: true, 
+        message: "Food item added successfully",
+        data: food
+      });
+    } catch (error) {
+      console.error("Error adding food item:", error);
+      
+      if (error.name === 'ValidationError') {
+        const messages = Object.values(error.errors).map(val => val.message);
+        return res.status(400).json({
+          success: false,
+          message: "Validation error",
+          errors: messages
+        });
+      }
+      
+      res.status(error.message.includes('required') ? 400 : 500).json({ 
+        success: false, 
+        message: error.message || "Server error while adding food item"
+      });
+    }
+  }
+
+  listFood = async (req, res) => {
+    try {
+      const foods = await this.foodService.getAllFoods();
+      res.json({
+        success: true,    
+        data: foods
+      });
+    } catch (error) {
+      console.error("Error fetching foods:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching food items"
+      });
+    }
+  }
+
+  updateFood = async (req, res) => {
+    try {
+      const food = await this.foodService.updateFood(req.params.id, req.body, req.file);
+      res.status(200).json({
+        success: true,
+        message: "Food item updated successfully",
+        data: food
+      });
+    } catch (error) {
+      console.error("Error updating food item:", error);
+      
+      if (error.name === 'ValidationError') {
+        const messages = Object.values(error.errors).map(val => val.message);
+        return res.status(400).json({
+          success: false,
+          message: "Validation error",
+          errors: messages
+        });
+      }
+
+      if (error.message === 'Food item not found') {
+        return res.status(404).json({ success: false, message: error.message });
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: "Error updating food item"
+      });
+    }
+  }
+
+  removeFood = async (req, res) => {
+    try {
+      if (!req.body.id) {
+        return res.status(400).json({
+          success: false,
+          message: "Food ID is required"
+        });
+      }
+
+      await this.foodService.deleteFood(req.body.id);
+      
+      res.json({
+        success: true,
+        message: "Food item removed successfully"
+      });
+    } catch (error) {
+      console.error("Error deleting food item:", error);
+
+      if (error.message === 'Food item not found') {
+        return res.status(404).json({ success: false, message: error.message });
+      }
+
+      res.status(500).json({
+        success: false,
+        message: "Error deleting food item"
+      });
+    }
+  }
+
+  searchFood = async (req, res) => {
+    try {
+      const { query } = req.query;
+      const foods = await this.foodService.searchFoods(query);
+      res.json({
+        success: true,
+        data: foods
+      });
+    } catch (error) {
+      console.error("Error searching foods:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error searching food items"
+      });
+    }
+  }
+}
+
+export default new FoodController();
