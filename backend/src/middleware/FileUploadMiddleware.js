@@ -3,7 +3,6 @@
  */
 
 import multer from 'multer';
-import UploadMiddlewareFactory from '../factories/UploadMiddlewareFactory.js';
 
 class FileUploadMiddleware {
   constructor() {
@@ -18,30 +17,24 @@ class FileUploadMiddleware {
         cb(null, `${file.fieldname}-${uniqueSuffix}.${ext}`);
       }
     });
-
-    // Factory produces multer middleware instances using strategies/config presets
-    this.factory = new UploadMiddlewareFactory({
-      storage: this.storage
-    });
   }
 
-  /**
-   * Backwards-compatible API.
-   * Creates a single-file upload middleware for the given field name.
-   */
   upload(fieldName = 'image') {
-    return this.factory
-      .create({
-        fieldName,
-        preset: 'image'
-      });
-  }
+    return multer({
+      storage: this.storage,
+      limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB
+      },
+      fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-  /**
-   * New API: pick a preset (e.g. 'image', 'avatar', 'document')
-   */
-  uploadWithPreset(preset, fieldName = 'file') {
-    return this.factory.create({ preset, fieldName });
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Invalid file type. Only JPEG, PNG and WebP allowed'), false);
+        }
+      }
+    }).single(fieldName);
   }
 }
 

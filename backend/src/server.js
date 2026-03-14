@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import 'dotenv/config'; 
 import dns from 'node:dns';
+import rateLimit from "express-rate-limit";
 import Database from "./config/Database.js";
 import FoodRoute from "./routes/FoodRoute.js";
 import UserRoute from "./routes/UserRoute.js";
@@ -25,6 +26,14 @@ class Server {
   initializeMiddleware() {
     this.app.use(express.json());
     this.app.use(cors());
+
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 100,
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+    this.app.use(limiter);
   }
 
   initializeRoutes() {

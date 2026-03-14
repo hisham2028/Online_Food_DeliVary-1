@@ -2,11 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './header.css';
 
+// ✅ Import images directly so Vite bundles them correctly
+import headerImg1 from '../../assets/header_img.png';
+// If you have more header images, import them the same way:
+ import headerImg2 from '../../assets/header_img_2.png';
+import headerImg3 from '../../assets/header_img_3.png';
+
 const Header = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const images = ["header_img.png", "header_img_2.png", "header_img_3.png"];
+
+  // ✅ Use imported image references instead of public-folder string paths
+  const images = [
+    headerImg1,
+    headerImg2,
+    headerImg3,
+  ];
 
   useEffect(() => {
+    if (images.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 5000);
@@ -19,7 +32,7 @@ const Header = () => {
         <div
           key={index}
           className={`header-bg ${index === currentIndex ? 'active' : ''}`}
-          style={{ backgroundImage: `url(${img})` }}
+          style={{ backgroundImage: `url(${img})` }}  // ✅ No leading slash
         />
       ))}
       <div className="header-overlay"></div>
@@ -33,11 +46,9 @@ const Header = () => {
           <Link to="/menu">
             <button className="view-menu-btn">View Menu</button>
           </Link>
-
         </div>
       </div>
 
-      {/* Animated Scroll Down Arrow */}
       <div className="scroll-indicator">
         <div className="mouse"></div>
       </div>

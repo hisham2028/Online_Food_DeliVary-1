@@ -3,7 +3,7 @@
   height: 36vw; /* Slightly taller for a more premium feel */
   max-height: 500px;
   margin: 0 auto 0; /* Remove top margin to connect to navbar */
-  position: sticky;
+  position: relative;
   border-radius: 20px; /* Softer corners */
   overflow: hidden;
   background-color: #111; /* Fallback color */

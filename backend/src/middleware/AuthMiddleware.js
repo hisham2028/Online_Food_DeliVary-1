@@ -9,7 +9,7 @@ class AuthMiddleware {
     const { token } = req.headers;
 
     if (!token) {
-      return res.json({ success: false, message: "Not Authorized. Login Again." });
+      return res.status(401).json({ success: false, message: "Not Authorized. Login Again." });
     }
 
     try {
@@ -18,7 +18,7 @@ class AuthMiddleware {
       next();
     } catch (error) {
       console.log(error);
-      res.json({ success: false, message: "Error" });
+      res.status(401).json({ success: false, message: "Token expired or invalid. Please login again." });
     }
   }
 
