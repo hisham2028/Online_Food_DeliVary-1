@@ -1,23 +1,25 @@
 import express from 'express';
-import { addFoods,listfood,removefood } from '../controllers/foodController.js';
-import multer from 'multer';
-import path from 'path';
+import FoodController from '../controllers/FoodController.js';
+import FileUploadMiddleware from '../middleware/FileUploadMiddleware.js';
 
-const foodRouter = express.Router();
+class FoodRoute {
+  constructor() {
+    this.router = express.Router();
+    this.controller = FoodController;
+    this.initializeRoutes();
+  }
 
+  initializeRoutes() {
+    this.router.post("/add", FileUploadMiddleware.upload("image"), this.controller.addFood);
+    this.router.get("/list", this.controller.listFood);
+    this.router.post("/remove", this.controller.removeFood);
+    this.router.put("/update/:id", FileUploadMiddleware.upload("image"), this.controller.updateFood);
+    this.router.get("/search", this.controller.searchFood);
+  }
 
-const storage = multer.diskStorage({
-    destination: "uploads", 
-    filename: (req, file, cb) => {
-        return cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
+  getRouter() {
+    return this.router;
+  }
+}
 
-const upload = multer({ storage: storage });
-
-foodRouter.post("/add", upload.single("image"), addFoods);
-foodRouter.get("/list",listfood)
-foodRouter.post("/remove",removefood)
-
-
-export default foodRouter;
+export default new FoodRoute().getRouter();

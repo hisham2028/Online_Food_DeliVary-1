@@ -81,7 +81,7 @@ class FoodService {
       updates.price = Number(updates.price);
     }
 
-    return await this.foodModel.updateById(foodId, updates);
+    return await this.foodModel.update(foodId, updates);
   }
 
   async deleteFood(foodId) {
@@ -91,7 +91,7 @@ class FoodService {
     }
 
     await this._deleteImage(food.image);
-    await this.foodModel.deleteById(foodId);
+    await this.foodModel.delete(foodId);
 
     return { message: 'Food item deleted successfully' };
   }

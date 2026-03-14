@@ -38,8 +38,12 @@ class UserModel {
     return await this.model.findByIdAndDelete(id);
   }
 
-  async findAll() {
-    return await this.model.find({});
+  async updateCart(userId, cartData) {
+    return await this.model.findByIdAndUpdate(userId, { cartData }, { new: true });
+  }
+
+  async clearCart(userId) {
+    return await this.model.findByIdAndUpdate(userId, { cartData: {} }, { new: true });
   }
 
   getModel() {

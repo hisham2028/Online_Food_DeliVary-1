@@ -1,12 +1,11 @@
 .special-sections-wrapper {
   position: relative;
   width: 100%;
-  min-height: 300vh; /* Ensures there is enough room to scroll */
+  min-height: 300vh;
   background: #000;
   overflow: clip;
 }
 
-/* THE BACKGROUND FIX */
 .bg-anchor {
   position: sticky;
   top: 0;
@@ -22,8 +21,8 @@
   inset: 0;
   background-size: cover;
   background-position: center;
-  filter: blur(0px) brightness(0.3); /* High blur to make it look like a glow */
-  transform: scale(1.2); /* Hide edges */
+  filter: blur(0px) brightness(0.3);
+  transform: scale(1.2);
 }
 
 .bg-vignette {
@@ -33,12 +32,11 @@
   z-index: 2;
 }
 
-/* CONTENT LAYOUT */
 .main-content-grid {
   position: relative;
   display: flex;
   z-index: 10;
-  margin-top: -100vh; /* Pulls content up over the sticky background */
+  margin-top: -100vh;
 }
 
 .image-sticky-side {
@@ -102,4 +100,4 @@ p {
   font-size: 1.3rem;
   line-height: 1.6;
   color: #ccc;
-}/
+}
