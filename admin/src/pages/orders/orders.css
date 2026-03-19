@@ -1,0 +1,99 @@
+.orders {
+  padding: 24px;
+}
+
+.orders-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 48px 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.order-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+
+.order-item > img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.order-details { display: flex; flex-direction: column; gap: 3px; }
+
+.order-food {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.order-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.order-address {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.order-phone { font-size: 12px; color: #6b7280; margin: 0; }
+
+.order-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.order-amount { font-weight: 700; color: #111827; }
+.order-date   { font-size: 11px; color: #9ca3af; }
+.order-count  { font-size: 12px; color: #6b7280; }
+
+.status-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  outline: none;
+  cursor: pointer;
+  background: #f9fafb;
+  transition: border-color 0.2s;
+}
+
+.status-select:focus { border-color: #f59e0b; }
+
+.status-select--food-processing { color: #d97706; }
+.status-select--out-for-delivery { color: #2563eb; }
+.status-select--delivered        { color: #16a34a; }
+
+.state-msg {
+  text-align: center;
+  padding: 32px;
+  color: #9ca3af;
+  font-size: 14px;
+}
