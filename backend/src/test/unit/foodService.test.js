@@ -18,8 +18,8 @@ const mockFoodModel = {
   findAll: vi.fn(),
   findById: vi.fn(),
   search: vi.fn(),
-  updateById: vi.fn(),
-  deleteById: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
 };
 
 describe('FoodService', () => {
@@ -120,7 +120,7 @@ describe('FoodService', () => {
   describe('updateFood()', () => {
     test('updates food without new image', async () => {
       mockFoodModel.findById.mockResolvedValue({ _id: 'f1', image: 'old.jpg' });
-      mockFoodModel.updateById.mockResolvedValue({ _id: 'f1', name: 'Updated' });
+      mockFoodModel.update.mockResolvedValue({ _id: 'f1', name: 'Updated' });
 
       const result = await service.updateFood('f1', { name: 'Updated' }, null);
       expect(result.name).toBe('Updated');
@@ -128,10 +128,10 @@ describe('FoodService', () => {
 
     test('replaces image when new image provided', async () => {
       mockFoodModel.findById.mockResolvedValue({ _id: 'f1', image: 'old.jpg' });
-      mockFoodModel.updateById.mockResolvedValue({ _id: 'f1', image: 'new.jpg' });
+      mockFoodModel.update.mockResolvedValue({ _id: 'f1', image: 'new.jpg' });
 
       await service.updateFood('f1', {}, { filename: 'new.jpg' });
-      expect(mockFoodModel.updateById).toHaveBeenCalledWith('f1', expect.objectContaining({ image: 'new.jpg' }));
+      expect(mockFoodModel.update).toHaveBeenCalledWith('f1', expect.objectContaining({ image: 'new.jpg' }));
     });
 
     test('throws if food not found', async () => {
@@ -144,10 +144,10 @@ describe('FoodService', () => {
   describe('deleteFood()', () => {
     test('deletes food and its image', async () => {
       mockFoodModel.findById.mockResolvedValue({ _id: 'f1', image: 'pizza.jpg' });
-      mockFoodModel.deleteById.mockResolvedValue({});
+      mockFoodModel.delete.mockResolvedValue({});
 
       const result = await service.deleteFood('f1');
-      expect(mockFoodModel.deleteById).toHaveBeenCalledWith('f1');
+      expect(mockFoodModel.delete).toHaveBeenCalledWith('f1');
       expect(result.message).toContain('deleted');
     });
 

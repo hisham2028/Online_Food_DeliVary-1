@@ -1,124 +1,40 @@
 /**
- * User Service - Business Logic Layer
+ * Stripe Service - Payment Processing
  */
+import Stripe from 'stripe';
 
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import validator from 'validator';
-import UserModel from '../models/UserModel.js';
-
-class UserService {
-  constructor(userModel = null) {
-    this.userModel = userModel || UserModel;
-    this.jwtExpiry = process.env.JWT_EXPIRY || '7d';
+class StripeService {
+  constructor() {
+    this._stripe = null;
   }
 
-  generateToken(userId) {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-      expiresIn: this.jwtExpiry
-    });
+  get stripe() {
+    if (!this._stripe) {
+      this._stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+    }
+    return this._stripe;
   }
 
-  async hashPassword(password) {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
-  }
-
-  async verifyPassword(password, hashedPassword) {
-    return await bcrypt.compare(password, hashedPassword);
-  }
-
-  async register(userData) {
-    const { name, email, password } = userData;
-
-    // Validate
-    if (!name || !email || !password) {
-      throw new Error('Please provide name, email and password');
-    }
-
-    if (!validator.isEmail(email)) {
-      throw new Error('Enter a valid email');
-    }
-
-    if (password.length < 6) {
-      throw new Error('Password must be at least 6 characters');
-    }
-
-    // Check existing user
-    const existingUser = await this.userModel.findByEmail(email);
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
-
-    // Hash password
-    const hashedPassword = await this.hashPassword(password);
-
-    // Create user
-    const newUser = await this.userModel.create({
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
-      password: hashedPassword
-    });
-
-    // Generate token
-    const token = this.generateToken(newUser._id);
-
-    return {
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email
+  formatLineItems(items) {
+    return items.map((item) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: { name: item.name },
+        unit_amount: Math.round(item.price * 100),
       },
-      token
-    };
+      quantity: item.quantity || 1,
+    }));
   }
 
-  async login(credentials) {
-    const { email, password } = credentials;
-
-    if (!email || !password) {
-      throw new Error('Please provide email and password');
-    }
-
-    const user = await this.userModel.findByEmail(email);
-    if (!user) {
-      throw new Error('Invalid credentials');
-    }
-
-    const isValid = await this.verifyPassword(password, user.password);
-    if (!isValid) {
-      throw new Error('Invalid credentials');
-    }
-
-    const token = this.generateToken(user._id);
-
-    // Update last login
-    await this.userModel.updateById(user._id, { lastLogin: new Date() });
-
-    return {
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      },
-      token
-    };
-  }
-
-  async getProfile(userId) {
-    const user = await this.userModel.findById(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    return {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    };
+  async createCheckoutSession(lineItems, orderId) {
+    return await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/verify?success=true&orderId=${orderId}`,
+      cancel_url: `${process.env.FRONTEND_URL}/verify?success=false&orderId=${orderId}`,
+    });
   }
 }
 
-export default UserService;
+export default new StripeService();

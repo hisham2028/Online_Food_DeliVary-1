@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import SpecialSections from './SpecialSections';
 
@@ -21,18 +21,30 @@ vi.mock('../../assets/assets', () => ({
   }
 }));
 
-// Mock IntersectionObserver
-const mockIntersectionObserver = vi.fn();
-mockIntersectionObserver.mockReturnValue({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn()
+// Capture IntersectionObserver callback for testing
+let capturedObserverCallback = null;
+const mockObserveInstance = { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() };
+const mockIntersectionObserver = vi.fn().mockImplementation(function (callback) {
+  capturedObserverCallback = callback;
+  this.observe = mockObserveInstance.observe;
+  this.unobserve = mockObserveInstance.unobserve;
+  this.disconnect = mockObserveInstance.disconnect;
 });
 window.IntersectionObserver = mockIntersectionObserver;
 
 describe('SpecialSections Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    capturedObserverCallback = null;
+    mockObserveInstance.observe.mockClear();
+    mockObserveInstance.unobserve.mockClear();
+    mockObserveInstance.disconnect.mockClear();
+    mockIntersectionObserver.mockClear();
+    mockIntersectionObserver.mockImplementation(function (callback) {
+      capturedObserverCallback = callback;
+      this.observe = mockObserveInstance.observe;
+      this.unobserve = mockObserveInstance.unobserve;
+      this.disconnect = mockObserveInstance.disconnect;
+    });
   });
 
   it('renders the component wrapper', () => {
@@ -113,30 +125,69 @@ describe('SpecialSections Component', () => {
   });
 
   it('disconnects IntersectionObserver on unmount', () => {
-    const disconnectMock = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: disconnectMock
-    });
-
     const { unmount } = render(<SpecialSections />);
     unmount();
-    
-    expect(disconnectMock).toHaveBeenCalled();
+    expect(mockObserveInstance.disconnect).toHaveBeenCalled();
   });
 
   it('observes all section refs', () => {
-    const observeMock = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: observeMock,
-      unobserve: vi.fn(),
-      disconnect: vi.fn()
+    render(<SpecialSections />);
+    // Should observe 3 sections
+    expect(mockObserveInstance.observe).toHaveBeenCalledTimes(3);
+  });
+
+  it('updates activeIndex when a section intersects (covers IntersectionObserver callback)', () => {
+    const { container } = render(<SpecialSections />);
+
+    // Collect the observed elements
+    const observedElements = mockObserveInstance.observe.mock.calls.map(call => call[0]);
+    expect(observedElements).toHaveLength(3);
+
+    // Initially the first block is active
+    const scrollBlocks = container.querySelectorAll('.scroll-block');
+    expect(scrollBlocks[0]).toHaveClass('active');
+    expect(scrollBlocks[1]).not.toHaveClass('active');
+
+    // Simulate the second section becoming visible (wrap in act for React state update)
+    act(() => {
+      capturedObserverCallback([
+        { isIntersecting: true, target: observedElements[1] }
+      ]);
     });
 
-    render(<SpecialSections />);
-    
-    // Should observe 3 sections
-    expect(observeMock).toHaveBeenCalledTimes(3);
+    // The second block should now be active
+    expect(scrollBlocks[1]).toHaveClass('active');
+    expect(scrollBlocks[0]).not.toHaveClass('active');
+  });
+
+  it('ignores intersection entries that are not intersecting', () => {
+    const { container } = render(<SpecialSections />);
+
+    const observedElements = mockObserveInstance.observe.mock.calls.map(call => call[0]);
+    const scrollBlocks = container.querySelectorAll('.scroll-block');
+
+    // Fire callback with isIntersecting=false - should not change activeIndex
+    act(() => {
+      capturedObserverCallback([
+        { isIntersecting: false, target: observedElements[2] }
+      ]);
+    });
+
+    expect(scrollBlocks[0]).toHaveClass('active'); // still first
+  });
+
+  it('ignores intersection entries for untracked elements', () => {
+    const { container } = render(<SpecialSections />);
+
+    const scrollBlocks = container.querySelectorAll('.scroll-block');
+
+    // Fire callback with an element not in sectionRefs
+    act(() => {
+      capturedObserverCallback([
+        { isIntersecting: true, target: document.createElement('div') }
+      ]);
+    });
+
+    expect(scrollBlocks[0]).toHaveClass('active'); // still first
   });
 });

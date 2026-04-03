@@ -256,4 +256,61 @@ describe('StoreContext', () => {
       expect(typeof latestCtx.url).toBe('string');
     });
   });
+
+  // ─── removeFromCart API call with token ─────────────────────
+  test('removeFromCart calls API when token is set', async () => {
+    localStorage.setItem('token', 'my-token');
+    axios.get.mockResolvedValue({ data: { data: [] } });
+    axios.post.mockResolvedValue({ data: { cartData: {} } });
+
+    renderProvider();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('token').textContent).toBe('my-token');
+    });
+
+    // Add item first so removeFromCart has something to remove
+    await act(async () => {
+      await userEvent.click(screen.getByTestId('add'));
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByTestId('remove'));
+    });
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.stringContaining('/api/cart/remove'),
+        { itemId: '1' },
+        expect.objectContaining({ headers: { token: 'my-token' } })
+      );
+    });
+  });
+
+  test('addToCart handles API error gracefully when token is set', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    localStorage.setItem('token', 'my-token');
+    axios.get.mockResolvedValue({ data: { data: [] } });
+    // First call is loadCartData, subsequent calls for addToCart fail
+    axios.post
+      .mockResolvedValueOnce({ data: { cartData: {} } }) // loadCartData
+      .mockRejectedValueOnce(new Error('Cart add error')); // addToCart
+
+    renderProvider();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('token').textContent).toBe('my-token');
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByTestId('add'));
+    });
+
+    // Cart should still be updated locally despite API error
+    await waitFor(() => {
+      expect(screen.getByTestId('cart-items-count').textContent).toBe('1');
+    });
+
+    consoleSpy.mockRestore();
+  });
 });

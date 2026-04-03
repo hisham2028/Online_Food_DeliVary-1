@@ -27,21 +27,22 @@ describe('ScrollToTop Component', () => {
   });
 
   it('calls window.scrollTo when pathname changes', () => {
-    const { rerender } = render(
+    // ScrollToTop fires on the initial mount; rerender with a new MemoryRouter
+    // creates a new mount which also triggers the effect.
+    const { unmount } = render(
       <MemoryRouter initialEntries={['/home']}>
         <ScrollToTop />
       </MemoryRouter>
     );
-    
     expect(mockScrollTo).toHaveBeenCalledWith(0, 0);
     mockScrollTo.mockClear();
+    unmount();
 
-    rerender(
+    render(
       <MemoryRouter initialEntries={['/menu']}>
         <ScrollToTop />
       </MemoryRouter>
     );
-    
     expect(mockScrollTo).toHaveBeenCalledWith(0, 0);
   });
 
