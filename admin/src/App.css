@@ -1,0 +1,30 @@
+/* ── App Layout ──────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  display: flex;
+  flex: 1;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: calc(100vh - 65px);
+  background: #f9fafb;
+}
