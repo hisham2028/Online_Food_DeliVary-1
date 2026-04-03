@@ -1,45 +1,41 @@
 /**
  * OrderController unit tests
  */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import OrderService from '../../services/OrderService.js';
 
-const mockCreateOrder      = jest.fn();
-const mockVerifyPayment    = jest.fn();
-const mockGetUserOrders    = jest.fn();
-const mockGetAllOrders     = jest.fn();
-const mockUpdateOrderStatus = jest.fn();
-const mockGetOrderById     = jest.fn();
-const mockCancelOrder      = jest.fn();
+vi.mock('../../services/OrderService.js', () => ({
+  default: vi.fn()
+}));
 
-jest.mock('../services/OrderService.js', () =>
-  jest.fn().mockImplementation(() => ({
-    createOrder:       mockCreateOrder,
-    verifyPayment:     mockVerifyPayment,
-    getUserOrders:     mockGetUserOrders,
-    getAllOrders:       mockGetAllOrders,
-    updateOrderStatus: mockUpdateOrderStatus,
-    getOrderById:      mockGetOrderById,
-    cancelOrder:       mockCancelOrder,
-  }))
-);
+const mockOrderService = {
+  createOrder: vi.fn(),
+  verifyPayment: vi.fn(),
+  getUserOrders: vi.fn(),
+  getAllOrders: vi.fn(),
+  updateOrderStatus: vi.fn(),
+  getOrderById: vi.fn(),
+  cancelOrder: vi.fn()
+};
 
-import OrderController from '../controllers/OrderController.js';
+OrderService.mockImplementation(() => mockOrderService);
+
+import OrderController from '../../controllers/OrderController.js';
 
 const mockRes = () => {
   const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json   = jest.fn().mockReturnValue(res);
+  res.status = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockReturnValue(res);
   return res;
 };
 
 describe('OrderController', () => {
-  beforeEach(() => jest.clearAllMocks());
-
-  // ── placeOrder ─────────────────────────────────────────────────────────────
+  beforeEach(() => vi.clearAllMocks());
 
   describe('placeOrder', () => {
     it('returns session_url for card payment', async () => {
-      mockCreateOrder.mockResolvedValue({
-        payment: { type: 'card', session_url: 'https://stripe.com/session' },
+      mockOrderService.createOrder.mockResolvedValue({
+        payment: { type: 'card', session_url: 'https://stripe.com/session' }
       });
 
       const req = { body: { userId: 'u1', items: [], amount: 100, address: {}, paymentMethod: 'card' } };
@@ -49,13 +45,13 @@ describe('OrderController', () => {
 
       expect(res.json).toHaveBeenCalledWith({
         success: true,
-        session_url: 'https://stripe.com/session',
+        session_url: 'https://stripe.com/session'
       });
     });
 
     it('returns message for COD payment', async () => {
-      mockCreateOrder.mockResolvedValue({
-        payment: { type: 'cod', message: 'Order Placed' },
+      mockOrderService.createOrder.mockResolvedValue({
+        payment: { type: 'cod', message: 'Order Placed' }
       });
 
       const req = { body: { userId: 'u1', items: [], amount: 50, address: {}, paymentMethod: 'cod' } };
@@ -67,7 +63,7 @@ describe('OrderController', () => {
     });
 
     it('returns error on exception', async () => {
-      mockCreateOrder.mockRejectedValue(new Error('DB error'));
+      mockOrderService.createOrder.mockRejectedValue(new Error('DB error'));
 
       const req = { body: {} };
       const res = mockRes();
@@ -78,11 +74,9 @@ describe('OrderController', () => {
     });
   });
 
-  // ── verifyOrder ────────────────────────────────────────────────────────────
-
   describe('verifyOrder', () => {
     it('returns service result on success', async () => {
-      mockVerifyPayment.mockResolvedValue({ success: true, message: 'Payment verified' });
+      mockOrderService.verifyPayment.mockResolvedValue({ success: true, message: 'Payment verified' });
 
       const req = { body: { orderId: 'o1', success: 'true' } };
       const res = mockRes();
@@ -93,7 +87,7 @@ describe('OrderController', () => {
     });
 
     it('returns error on exception', async () => {
-      mockVerifyPayment.mockRejectedValue(new Error('fail'));
+      mockOrderService.verifyPayment.mockRejectedValue(new Error('fail'));
 
       const req = { body: { orderId: 'o1', success: 'false' } };
       const res = mockRes();
@@ -104,12 +98,10 @@ describe('OrderController', () => {
     });
   });
 
-  // ── getUserOrders ──────────────────────────────────────────────────────────
-
   describe('getUserOrders', () => {
     it('returns orders for a user', async () => {
       const orders = [{ _id: 'o1' }];
-      mockGetUserOrders.mockResolvedValue(orders);
+      mockOrderService.getUserOrders.mockResolvedValue(orders);
 
       const req = { body: { userId: 'u1' } };
       const res = mockRes();
@@ -120,7 +112,7 @@ describe('OrderController', () => {
     });
 
     it('returns error on exception', async () => {
-      mockGetUserOrders.mockRejectedValue(new Error('fail'));
+      mockOrderService.getUserOrders.mockRejectedValue(new Error('fail'));
 
       const req = { body: { userId: 'u1' } };
       const res = mockRes();
@@ -131,12 +123,10 @@ describe('OrderController', () => {
     });
   });
 
-  // ── listOrders ─────────────────────────────────────────────────────────────
-
   describe('listOrders', () => {
     it('returns all orders', async () => {
       const orders = [{ _id: 'o1' }, { _id: 'o2' }];
-      mockGetAllOrders.mockResolvedValue(orders);
+      mockOrderService.getAllOrders.mockResolvedValue(orders);
 
       const req = {};
       const res = mockRes();
@@ -145,25 +135,34 @@ describe('OrderController', () => {
 
       expect(res.json).toHaveBeenCalledWith({ success: true, data: orders });
     });
-  });
 
-  // ── updateStatus ───────────────────────────────────────────────────────────
+    it('returns error on exception', async () => {
+      mockOrderService.getAllOrders.mockRejectedValue(new Error('fail'));
+
+      const req = {};
+      const res = mockRes();
+
+      await OrderController.listOrders(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Error collecting orders' });
+    });
+  });
 
   describe('updateStatus', () => {
     it('updates order status successfully', async () => {
-      mockUpdateOrderStatus.mockResolvedValue({});
+      mockOrderService.updateOrderStatus.mockResolvedValue({});
 
       const req = { body: { orderId: 'o1', status: 'Delivered' } };
       const res = mockRes();
 
       await OrderController.updateStatus(req, res);
 
-      expect(mockUpdateOrderStatus).toHaveBeenCalledWith('o1', 'Delivered');
+      expect(mockOrderService.updateOrderStatus).toHaveBeenCalledWith('o1', 'Delivered');
       expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Status Updated' });
     });
 
     it('returns error message from service', async () => {
-      mockUpdateOrderStatus.mockRejectedValue(new Error('Invalid status'));
+      mockOrderService.updateOrderStatus.mockRejectedValue(new Error('Invalid status'));
 
       const req = { body: { orderId: 'o1', status: 'Bad' } };
       const res = mockRes();
@@ -174,12 +173,10 @@ describe('OrderController', () => {
     });
   });
 
-  // ── getOrderById ───────────────────────────────────────────────────────────
-
   describe('getOrderById', () => {
     it('returns order by id', async () => {
       const order = { _id: 'o1', status: 'Processing' };
-      mockGetOrderById.mockResolvedValue(order);
+      mockOrderService.getOrderById.mockResolvedValue(order);
 
       const req = { params: { id: 'o1' } };
       const res = mockRes();
@@ -190,7 +187,7 @@ describe('OrderController', () => {
     });
 
     it('responds 404 when order not found', async () => {
-      mockGetOrderById.mockRejectedValue(new Error('Order not found'));
+      mockOrderService.getOrderById.mockRejectedValue(new Error('Order not found'));
 
       const req = { params: { id: 'bad' } };
       const res = mockRes();
@@ -200,13 +197,22 @@ describe('OrderController', () => {
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Order not found' });
     });
-  });
 
-  // ── cancelOrder ────────────────────────────────────────────────────────────
+    it('returns generic error for other exceptions', async () => {
+      mockOrderService.getOrderById.mockRejectedValue(new Error('DB error'));
+
+      const req = { params: { id: 'o1' } };
+      const res = mockRes();
+
+      await OrderController.getOrderById(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Error fetching order' });
+    });
+  });
 
   describe('cancelOrder', () => {
     it('cancels order successfully', async () => {
-      mockCancelOrder.mockResolvedValue({});
+      mockOrderService.cancelOrder.mockResolvedValue({});
 
       const req = { body: { orderId: 'o1', userId: 'u1' } };
       const res = mockRes();
@@ -217,7 +223,7 @@ describe('OrderController', () => {
     });
 
     it('responds 404 when order not found', async () => {
-      mockCancelOrder.mockRejectedValue(new Error('Order not found'));
+      mockOrderService.cancelOrder.mockRejectedValue(new Error('Order not found'));
 
       const req = { body: { orderId: 'bad', userId: 'u1' } };
       const res = mockRes();
@@ -225,6 +231,17 @@ describe('OrderController', () => {
       await OrderController.cancelOrder(req, res);
 
       expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('returns error message for other failures', async () => {
+      mockOrderService.cancelOrder.mockRejectedValue(new Error('Cannot cancel'));
+
+      const req = { body: { orderId: 'o1', userId: 'u1' } };
+      const res = mockRes();
+
+      await OrderController.cancelOrder(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Cannot cancel' });
     });
   });
 });

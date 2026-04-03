@@ -12,6 +12,12 @@ vi.mock('react-toastify', () => ({
     error: vi.fn()
   }
 }));
+vi.mock('../../services/authService', () => ({
+  default: {
+    signInWithGoogle: vi.fn(),
+    signInWithFacebook: vi.fn(),
+  }
+}));
 
 describe('Login Component', () => {
   const mockSetShowLogin = vi.fn();
@@ -35,65 +41,48 @@ describe('Login Component', () => {
   });
 
   test('renders login form by default', () => {
-    // Arrange & Act
     renderWithContext();
-    
-    // Assert
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    // "Login" appears in both h2 and button — use getByRole heading
+    expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Your email')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
   });
 
   test('does not show name field in login mode', () => {
-    // Arrange & Act
     renderWithContext();
-    
-    // Assert
     expect(screen.queryByPlaceholderText('Your name')).not.toBeInTheDocument();
   });
 
   test('toggles to sign up mode', () => {
-    // Arrange
     renderWithContext();
-    
-    // Act
-    const toggleLink = screen.getByText('Click here');
-    fireEvent.click(toggleLink);
-    
-    // Assert
-    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Click here'));
+    expect(screen.getByRole('heading', { name: 'Sign Up' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Your name')).toBeInTheDocument();
   });
 
   test('updates form data on input change', () => {
-    // Arrange
     renderWithContext();
-    
-    // Act
     const emailInput = screen.getByPlaceholderText('Your email');
     fireEvent.change(emailInput, { target: { name: 'email', value: 'test@example.com' } });
-    
-    // Assert
     expect(emailInput.value).toBe('test@example.com');
   });
 
   test('submits login successfully', async () => {
-    // Arrange
     axios.post.mockResolvedValue({
       data: { success: true, token: 'test-token' }
     });
     renderWithContext();
-    
-    // Act
+
     fireEvent.change(screen.getByPlaceholderText('Your email'), {
       target: { name: 'email', value: 'test@example.com' }
     });
     fireEvent.change(screen.getByPlaceholderText('Password'), {
       target: { name: 'password', value: 'password123' }
     });
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-    
-    // Assert
+    // Check the terms checkbox so HTML validation doesn't block submit
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.submit(screen.getByPlaceholderText('Your email').closest('form'));
+
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
         'http://localhost:4000/api/user/login',
@@ -109,50 +98,37 @@ describe('Login Component', () => {
   });
 
   test('handles login error', async () => {
-    // Arrange
     axios.post.mockResolvedValue({
       data: { success: false, message: 'Invalid credentials' }
     });
     renderWithContext();
-    
-    // Act
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-    
-    // Assert
+
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.submit(screen.getByPlaceholderText('Your email').closest('form'));
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Invalid credentials');
     });
   });
 
   test('closes popup when close icon is clicked', () => {
-    // Arrange
     renderWithContext();
-    
-    // Act
-    const closeIcon = screen.getByAltText('Close');
-    fireEvent.click(closeIcon);
-    
-    // Assert
+    fireEvent.click(screen.getByAltText('Close'));
     expect(mockSetShowLogin).toHaveBeenCalledWith(false);
   });
 
   test('requires terms checkbox to be checked', () => {
-    // Arrange
     renderWithContext();
-    
-    // Assert
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).toBeRequired();
   });
 
   test('submits signup with name field', async () => {
-    // Arrange
     axios.post.mockResolvedValue({
       data: { success: true, token: 'test-token' }
     });
     renderWithContext();
-    
-    // Act
+
     fireEvent.click(screen.getByText('Click here'));
     fireEvent.change(screen.getByPlaceholderText('Your name'), {
       target: { name: 'name', value: 'John Doe' }
@@ -163,9 +139,9 @@ describe('Login Component', () => {
     fireEvent.change(screen.getByPlaceholderText('Password'), {
       target: { name: 'password', value: 'pass123' }
     });
-    fireEvent.click(screen.getByRole('button', { name: /create account/i }));
-    
-    // Assert
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.submit(screen.getByPlaceholderText('Your email').closest('form'));
+
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
         'http://localhost:4000/api/user/register',
@@ -180,14 +156,12 @@ describe('Login Component', () => {
   });
 
   test('handles network error', async () => {
-    // Arrange
     axios.post.mockRejectedValue(new Error('Network Error'));
     renderWithContext();
-    
-    // Act
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-    
-    // Assert
+
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.submit(screen.getByPlaceholderText('Your email').closest('form'));
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Something went wrong. Check your connection.');
     });

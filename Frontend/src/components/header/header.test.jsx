@@ -1,38 +1,30 @@
 import { render, screen } from '@testing-library/react';
 import { describe, test, expect } from 'vitest';
+import { BrowserRouter } from 'react-router-dom';
 import Header from './header';
+
+const renderHeader = () => render(<BrowserRouter><Header /></BrowserRouter>);
 
 describe('Header Component', () => {
   test('renders header with main heading', () => {
-    // Arrange & Act
-    render(<Header />);
-    
-    // Assert
-    expect(screen.getByText('Order your favorite food')).toBeInTheDocument();
+    renderHeader();
+    expect(screen.getByText(/Order your/i)).toBeInTheDocument();
+    expect(screen.getByText(/favorite food/i)).toBeInTheDocument();
   });
 
   test('renders description text', () => {
-    // Arrange & Act
-    render(<Header />);
-    
-    // Assert
-    expect(screen.getByText(/Munch on the deliciousness/i)).toBeInTheDocument();
+    renderHeader();
+    expect(screen.getByText(/Crafted with the finest ingredients/i)).toBeInTheDocument();
   });
 
   test('renders view menu button', () => {
-    // Arrange & Act
-    render(<Header />);
-    
-    // Assert
+    renderHeader();
     const button = screen.getByRole('button', { name: /view menu/i });
     expect(button).toBeInTheDocument();
   });
 
   test('has correct CSS class structure', () => {
-    // Arrange
-    const { container } = render(<Header />);
-    
-    // Assert
+    const { container } = renderHeader();
     expect(container.querySelector('.header')).toBeInTheDocument();
     expect(container.querySelector('.headercontent')).toBeInTheDocument();
   });
