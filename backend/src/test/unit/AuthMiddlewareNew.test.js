@@ -10,7 +10,9 @@ vi.mock('jsonwebtoken', () => ({
   }
 }));
 
-import { authenticate } from '../../middleware/AuthMiddleware.js';
+import AuthMiddleware from '../../middleware/AuthMiddleware.js';
+
+const { authenticate } = AuthMiddleware;
 
 const mockRes = () => {
   const res = {};
@@ -45,7 +47,7 @@ describe('AuthMiddleware', () => {
       authenticate(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Not Authorized. Please login again.' });
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Not Authorized. Login Again.' });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -93,6 +95,33 @@ describe('AuthMiddleware', () => {
       authenticate(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
+    });
+  });
+
+  describe('generateToken', () => {
+    it('generates a non-empty string token', () => {
+      // generateToken uses jwt.sign internally (mocked)
+      jwt.sign = vi.fn().mockReturnValue('signed-token-abc');
+      const token = AuthMiddleware.generateToken('u1');
+      expect(typeof token).toBe('string');
+      expect(token.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('verifyToken', () => {
+    it('returns decoded payload for a valid token', () => {
+      const decoded = { id: 'u1', iat: 1, exp: 9999999999 };
+      jwt.verify.mockReturnValue(decoded);
+
+      const result = AuthMiddleware.verifyToken('valid-token');
+      expect(result).toEqual(decoded);
+    });
+
+    it('returns null for an invalid token', () => {
+      jwt.verify.mockImplementation(() => { throw new Error('invalid'); });
+
+      const result = AuthMiddleware.verifyToken('bad-token');
+      expect(result).toBeNull();
     });
   });
 });

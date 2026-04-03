@@ -27,10 +27,10 @@ describe('Login Component', () => {
     setToken: mockSetToken
   };
 
-  const renderWithContext = () => {
+  const renderWithContext = (extraProps = {}) => {
     return render(
       <StoreContext.Provider value={mockContextValue}>
-        <Login setShowLogin={mockSetShowLogin} />
+        <Login setShowLogin={mockSetShowLogin} {...extraProps} />
       </StoreContext.Provider>
     );
   };
@@ -165,5 +165,15 @@ describe('Login Component', () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Something went wrong. Check your connection.');
     });
+  });
+
+  test('calls handleForgotPassword when "Forgot Password?" is clicked', () => {
+    const mockSetShowForgotPassword = vi.fn();
+    renderWithContext({ setShowForgotPassword: mockSetShowForgotPassword });
+
+    fireEvent.click(screen.getByText('Forgot Password?'));
+
+    expect(mockSetShowLogin).toHaveBeenCalledWith(false);
+    expect(mockSetShowForgotPassword).toHaveBeenCalledWith(true);
   });
 });

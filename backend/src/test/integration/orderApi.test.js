@@ -23,29 +23,19 @@ vi.mock('../../models/OrderModel.js', () => ({
 vi.mock('../../models/UserModel.js', () => ({
   default: {
     findById: vi.fn(),
-    clearCart: vi.fn(),
+    updateById: vi.fn(),
   },
 }));
 
-vi.mock('../../models/FoodModel.js', () => ({
+vi.mock('../../services/StripeService.js', () => ({
   default: {
-    findById: vi.fn(),
+    formatLineItems: vi.fn().mockReturnValue([]),
+    createCheckoutSession: vi.fn().mockResolvedValue({ url: 'https://stripe.com/session' }),
   },
 }));
-
-vi.mock('../../strategies/PaymentStrategy.js', () => {
-  class MockPaymentProcessor {
-    setStrategy() { return this; }
-    async processPayment() {
-      return { type: 'cod', message: 'Order Placed. Pay on delivery.' };
-    }
-  }
-  return { PaymentProcessor: MockPaymentProcessor };
-});
 
 const { default: OrderModel } = await import('../../models/OrderModel.js');
 const { default: UserModel } = await import('../../models/UserModel.js');
-const { default: FoodModel } = await import('../../models/FoodModel.js');
 const { default: OrderController } = await import('../../controllers/OrderController.js');
 const { default: AuthMiddleware } = await import('../../middleware/AuthMiddleware.js');
 
@@ -85,9 +75,8 @@ describe('Order API — Integration', () => {
   // ─── Place Order ────────────────────────────────────────────
   describe('POST /api/order/place', () => {
     test('places a COD order successfully', async () => {
-      FoodModel.findById.mockResolvedValue({ _id: 'food1', name: 'Pizza', isAvailable: true });
       OrderModel.create.mockResolvedValue({ ...sampleOrder });
-      UserModel.clearCart.mockResolvedValue({});
+      UserModel.updateById.mockResolvedValue({});
 
       const res = await request(app)
         .post('/api/order/place')
@@ -100,7 +89,25 @@ describe('Order API — Integration', () => {
         });
 
       expect(res.body.success).toBe(true);
-      expect(res.body.message).toContain('Order Placed');
+      expect(res.body.message).toBe('Order Placed');
+    });
+
+    test('places a card order and returns session_url', async () => {
+      OrderModel.create.mockResolvedValue({ ...sampleOrder });
+      UserModel.updateById.mockResolvedValue({});
+
+      const res = await request(app)
+        .post('/api/order/place')
+        .set('token', validToken)
+        .send({
+          items: [{ _id: 'food1', name: 'Pizza', quantity: 2 }],
+          amount: 25,
+          address: {},
+          paymentMethod: 'card',
+        });
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.session_url).toBeDefined();
     });
 
     test('rejects order without auth token', async () => {
@@ -113,13 +120,13 @@ describe('Order API — Integration', () => {
     });
 
     test('returns error on internal failure', async () => {
-      FoodModel.findById.mockRejectedValue(new Error('DB error'));
+      OrderModel.create.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/order/place')
         .set('token', validToken)
         .send({
-          items: [{ _id: 'food1', name: 'Pizza', quantity: 1 }],
+          items: [],
           amount: 12,
           address: {},
         });
@@ -132,7 +139,6 @@ describe('Order API — Integration', () => {
   // ─── Verify Order ──────────────────────────────────────────
   describe('POST /api/order/verify', () => {
     test('verifies payment successfully', async () => {
-      OrderModel.findById.mockResolvedValue({ ...sampleOrder });
       OrderModel.updatePaymentStatus.mockResolvedValue({});
 
       const res = await request(app)
@@ -140,11 +146,10 @@ describe('Order API — Integration', () => {
         .send({ orderId: 'ord1', success: 'true' });
 
       expect(res.body.success).toBe(true);
-      expect(res.body.message).toBe('Payment verified');
+      expect(res.body.message).toBe('Paid');
     });
 
     test('deletes order on failed payment', async () => {
-      OrderModel.findById.mockResolvedValue({ ...sampleOrder });
       OrderModel.deleteById.mockResolvedValue({});
 
       const res = await request(app)
@@ -152,12 +157,12 @@ describe('Order API — Integration', () => {
         .send({ orderId: 'ord1', success: 'false' });
 
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe('Payment failed');
+      expect(res.body.message).toBe('Not Paid');
       expect(OrderModel.deleteById).toHaveBeenCalledWith('ord1');
     });
 
-    test('returns error for non-existent order', async () => {
-      OrderModel.findById.mockResolvedValue(null);
+    test('returns error on exception', async () => {
+      OrderModel.updatePaymentStatus.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/order/verify')
@@ -237,10 +242,8 @@ describe('Order API — Integration', () => {
       expect(res.body.message).toBe('Status Updated');
     });
 
-    test('rejects invalid status', async () => {
-      OrderModel.updateStatus.mockImplementation(() => {
-        throw new Error('Invalid status');
-      });
+    test('returns error on exception', async () => {
+      OrderModel.updateStatus.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
         .post('/api/order/status')

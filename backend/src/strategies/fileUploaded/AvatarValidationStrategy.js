@@ -6,7 +6,7 @@
  * Follows the Open/Closed Principle.
  */
 
-import StripeService from '../services/StripeService.js';
+import StripeService from '../../services/StripeService.js';
 
 // ─── Base Strategy (Abstract Interface) ───────────────────────────────────────
 class BasePaymentStrategy {
