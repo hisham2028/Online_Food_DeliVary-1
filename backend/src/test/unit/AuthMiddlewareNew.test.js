@@ -10,7 +10,9 @@ vi.mock('jsonwebtoken', () => ({
   }
 }));
 
-import { authenticate } from '../../middleware/AuthMiddleware.js';
+import AuthMiddleware from '../../middleware/AuthMiddleware.js';
+
+const { authenticate } = AuthMiddleware;
 
 const mockRes = () => {
   const res = {};
@@ -45,7 +47,7 @@ describe('AuthMiddleware', () => {
       authenticate(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Not Authorized. Please login again.' });
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Not Authorized. Login Again.' });
       expect(next).not.toHaveBeenCalled();
     });
 

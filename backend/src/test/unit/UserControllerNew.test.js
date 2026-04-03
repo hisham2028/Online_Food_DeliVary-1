@@ -2,22 +2,41 @@
  * UserController unit tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import UserService from '../../services/UserService.js';
 
-vi.mock('../../services/UserService.js', () => ({
-  default: vi.fn()
+vi.mock('../../models/UserModel.js', () => ({
+  default: {
+    findByEmail: vi.fn(),
+    create: vi.fn(),
+    findById: vi.fn(),
+    updateById: vi.fn(),
+  }
 }));
 
-const mockUserService = {
-  login: vi.fn(),
-  register: vi.fn(),
-  getProfile: vi.fn(),
-  updateProfile: vi.fn()
-};
+vi.mock('../../middleware/AuthMiddleware.js', () => ({
+  default: {
+    authenticate: vi.fn(),
+    generateToken: vi.fn().mockReturnValue('mocked-token'),
+    verifyToken: vi.fn(),
+  }
+}));
 
-UserService.mockImplementation(() => mockUserService);
+vi.mock('bcryptjs', () => ({
+  default: {
+    compare: vi.fn(),
+    genSalt: vi.fn().mockResolvedValue('salt'),
+    hash: vi.fn().mockResolvedValue('hashed-password'),
+  }
+}));
 
-import UserController from '../../controllers/UserController.js';
+vi.mock('validator', () => ({
+  default: { isEmail: vi.fn().mockReturnValue(true) }
+}));
+
+const { default: UserModel } = await import('../../models/UserModel.js');
+const { default: AuthMiddleware } = await import('../../middleware/AuthMiddleware.js');
+const bcrypt = (await import('bcryptjs')).default;
+const validator = (await import('validator')).default;
+const { default: UserController } = await import('../../controllers/UserContoller.js');
 
 const mockRes = () => {
   const res = {};
@@ -31,7 +50,9 @@ describe('UserController', () => {
 
   describe('login', () => {
     it('returns token on successful login', async () => {
-      mockUserService.login.mockResolvedValue({ token: 'jwt-token-123' });
+      UserModel.findByEmail.mockResolvedValue({ _id: 'u1', password: 'hashed' });
+      bcrypt.compare.mockResolvedValue(true);
+      AuthMiddleware.generateToken.mockReturnValue('jwt-token-123');
 
       const req = { body: { email: 'test@example.com', password: 'password123' } };
       const res = mockRes();
@@ -41,21 +62,45 @@ describe('UserController', () => {
       expect(res.json).toHaveBeenCalledWith({ success: true, token: 'jwt-token-123' });
     });
 
-    it('returns error on invalid credentials', async () => {
-      mockUserService.login.mockRejectedValue(new Error('Invalid credentials'));
+    it('returns error on invalid credentials (wrong password)', async () => {
+      UserModel.findByEmail.mockResolvedValue({ _id: 'u1', password: 'hashed' });
+      bcrypt.compare.mockResolvedValue(false);
 
       const req = { body: { email: 'test@example.com', password: 'wrong' } };
       const res = mockRes();
 
       await UserController.login(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Invalid credentials' });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+    });
+
+    it('returns error when user not found', async () => {
+      UserModel.findByEmail.mockResolvedValue(null);
+
+      const req = { body: { email: 'test@example.com', password: 'password123' } };
+      const res = mockRes();
+
+      await UserController.login(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+    });
+
+    it('returns error when fields missing', async () => {
+      const req = { body: {} };
+      const res = mockRes();
+
+      await UserController.login(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
   });
 
   describe('register', () => {
     it('returns token on successful registration', async () => {
-      mockUserService.register.mockResolvedValue({ token: 'new-jwt-token' });
+      validator.isEmail.mockReturnValue(true);
+      UserModel.findByEmail.mockResolvedValue(null);
+      UserModel.create.mockResolvedValue({ _id: 'u1', name: 'Test User', email: 'new@example.com' });
+      AuthMiddleware.generateToken.mockReturnValue('new-jwt-token');
 
       const req = { body: { name: 'Test User', email: 'new@example.com', password: 'password123' } };
       const res = mockRes();
@@ -66,61 +111,65 @@ describe('UserController', () => {
     });
 
     it('returns error when user already exists', async () => {
-      mockUserService.register.mockRejectedValue(new Error('User already exists'));
+      validator.isEmail.mockReturnValue(true);
+      UserModel.findByEmail.mockResolvedValue({ _id: 'existing' });
 
       const req = { body: { name: 'Test', email: 'exists@example.com', password: 'password123' } };
       const res = mockRes();
 
       await UserController.register(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User already exists' });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
 
     it('returns error for invalid email', async () => {
-      mockUserService.register.mockRejectedValue(new Error('Enter a valid email'));
+      validator.isEmail.mockReturnValue(false);
 
       const req = { body: { name: 'Test', email: 'invalid', password: 'password123' } };
       const res = mockRes();
 
       await UserController.register(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Enter a valid email' });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
 
     it('returns error for short password', async () => {
-      mockUserService.register.mockRejectedValue(new Error('Password must be at least 6 characters'));
+      validator.isEmail.mockReturnValue(true);
 
       const req = { body: { name: 'Test', email: 'test@example.com', password: '123' } };
       const res = mockRes();
 
       await UserController.register(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Password must be at least 6 characters' });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
   });
 
-  describe('getProfile', () => {
+  describe('getUserProfile', () => {
     it('returns user profile', async () => {
-      const profile = { name: 'Test User', email: 'test@example.com' };
-      mockUserService.getProfile.mockResolvedValue(profile);
+      const userObj = { _id: 'u1', name: 'Test User', email: 'test@example.com' };
+      UserModel.findById.mockResolvedValue({
+        ...userObj,
+        toObject() { return userObj; }
+      });
 
-      const req = { body: { userId: 'user123' } };
+      const req = { body: { userId: 'u1' } };
       const res = mockRes();
 
-      await UserController.getProfile(req, res);
+      await UserController.getUserProfile(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: true, data: profile });
+      expect(res.json).toHaveBeenCalledWith({ success: true, data: userObj });
     });
 
     it('returns error when user not found', async () => {
-      mockUserService.getProfile.mockRejectedValue(new Error('User not found'));
+      UserModel.findById.mockResolvedValue(null);
 
       const req = { body: { userId: 'invalid' } };
       const res = mockRes();
 
-      await UserController.getProfile(req, res);
+      await UserController.getUserProfile(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User not found' });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
   });
 });

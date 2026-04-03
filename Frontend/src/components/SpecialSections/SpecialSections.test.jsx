@@ -22,17 +22,23 @@ vi.mock('../../assets/assets', () => ({
 }));
 
 // Mock IntersectionObserver
-const mockIntersectionObserver = vi.fn();
-mockIntersectionObserver.mockReturnValue({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn()
+let mockObserveInstance = { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() };
+const mockIntersectionObserver = vi.fn().mockImplementation(function (_callback) {
+  this.observe = mockObserveInstance.observe;
+  this.unobserve = mockObserveInstance.unobserve;
+  this.disconnect = mockObserveInstance.disconnect;
 });
 window.IntersectionObserver = mockIntersectionObserver;
 
 describe('SpecialSections Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockObserveInstance = { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() };
+    mockIntersectionObserver.mockClear();
+    mockIntersectionObserver.mockImplementation(function (_callback) {
+      this.observe = mockObserveInstance.observe;
+      this.unobserve = mockObserveInstance.unobserve;
+      this.disconnect = mockObserveInstance.disconnect;
+    });
   });
 
   it('renders the component wrapper', () => {
@@ -113,30 +119,14 @@ describe('SpecialSections Component', () => {
   });
 
   it('disconnects IntersectionObserver on unmount', () => {
-    const disconnectMock = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: disconnectMock
-    });
-
     const { unmount } = render(<SpecialSections />);
     unmount();
-    
-    expect(disconnectMock).toHaveBeenCalled();
+    expect(mockObserveInstance.disconnect).toHaveBeenCalled();
   });
 
   it('observes all section refs', () => {
-    const observeMock = vi.fn();
-    mockIntersectionObserver.mockReturnValue({
-      observe: observeMock,
-      unobserve: vi.fn(),
-      disconnect: vi.fn()
-    });
-
     render(<SpecialSections />);
-    
     // Should observe 3 sections
-    expect(observeMock).toHaveBeenCalledTimes(3);
+    expect(mockObserveInstance.observe).toHaveBeenCalledTimes(3);
   });
 });

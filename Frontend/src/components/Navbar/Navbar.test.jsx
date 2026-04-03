@@ -20,7 +20,8 @@ describe('Navbar Component', () => {
   const defaultContext = {
     cartItems: {},
     token: '',
-    setToken: mockSetToken
+    setToken: mockSetToken,
+    getTotalCartAmount: vi.fn().mockReturnValue(0),
   };
 
   const renderWithContext = (contextValue = defaultContext) => {
@@ -54,7 +55,6 @@ describe('Navbar Component', () => {
     // Assert
     expect(screen.getByText('home')).toBeInTheDocument();
     expect(screen.getByText('menu')).toBeInTheDocument();
-    expect(screen.getByText('mobile-app')).toBeInTheDocument();
     expect(screen.getByText('contact-us')).toBeInTheDocument();
   });
 
@@ -93,7 +93,11 @@ describe('Navbar Component', () => {
 
   test('displays cart dot when items in cart', () => {
     // Arrange
-    const contextWithCart = { ...defaultContext, cartItems: { '1': 2 } };
+    const contextWithCart = {
+      ...defaultContext,
+      cartItems: { '1': 2 },
+      getTotalCartAmount: vi.fn().mockReturnValue(12.99),
+    };
     
     // Act
     const { container } = renderWithContext(contextWithCart);

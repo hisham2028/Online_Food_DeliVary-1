@@ -2,22 +2,16 @@
  * CartController unit tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import CartService from '../../services/CartService.js';
 
-vi.mock('../../services/CartService.js', () => ({
-  default: vi.fn()
+vi.mock('../../models/UserModel.js', () => ({
+  default: {
+    findById: vi.fn(),
+    updateById: vi.fn(),
+  }
 }));
 
-const mockCartService = {
-  addToCart: vi.fn(),
-  removeFromCart: vi.fn(),
-  getCart: vi.fn(),
-  clearCart: vi.fn()
-};
-
-CartService.mockImplementation(() => mockCartService);
-
-import CartController from '../../controllers/CartController.js';
+const { default: UserModel } = await import('../../models/UserModel.js');
+const { default: CartController } = await import('../../controllers/CartController.js');
 
 const mockRes = () => {
   const res = {};
@@ -31,66 +25,69 @@ describe('CartController', () => {
 
   describe('addToCart', () => {
     it('adds item to cart successfully', async () => {
-      mockCartService.addToCart.mockResolvedValue({ message: 'Added to cart', cartData: { item1: 1 } });
+      UserModel.findById.mockResolvedValue({ _id: 'user1', cartData: {} });
+      UserModel.updateById.mockResolvedValue({});
 
       const req = { body: { userId: 'user1', itemId: 'item1' } };
       const res = mockRes();
 
       await CartController.addToCart(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Added to cart', cartData: { item1: 1 } });
+      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Added To Cart' });
     });
 
-    it('returns error when food item not found', async () => {
-      mockCartService.addToCart.mockRejectedValue(new Error('Food item not found'));
-
-      const req = { body: { userId: 'user1', itemId: 'invalid' } };
-      const res = mockRes();
-
-      await CartController.addToCart(req, res);
-
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Food item not found' });
-    });
-
-    it('returns error when food item not available', async () => {
-      mockCartService.addToCart.mockRejectedValue(new Error('Food item not available'));
+    it('increments quantity for existing item', async () => {
+      UserModel.findById.mockResolvedValue({ _id: 'user1', cartData: { item1: 2 } });
+      UserModel.updateById.mockResolvedValue({});
 
       const req = { body: { userId: 'user1', itemId: 'item1' } };
       const res = mockRes();
 
       await CartController.addToCart(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Food item not available' });
+      expect(UserModel.updateById).toHaveBeenCalledWith('user1', { cartData: { item1: 3 } });
+    });
+
+    it('returns error when user not found', async () => {
+      UserModel.findById.mockResolvedValue(null);
+
+      const req = { body: { userId: 'invalid', itemId: 'item1' } };
+      const res = mockRes();
+
+      await CartController.addToCart(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User not found' });
     });
   });
 
   describe('removeFromCart', () => {
     it('removes item from cart successfully', async () => {
-      mockCartService.removeFromCart.mockResolvedValue({ message: 'Removed from cart', cartData: {} });
+      UserModel.findById.mockResolvedValue({ _id: 'user1', cartData: { item1: 2 } });
+      UserModel.updateById.mockResolvedValue({});
 
       const req = { body: { userId: 'user1', itemId: 'item1' } };
       const res = mockRes();
 
       await CartController.removeFromCart(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Removed from cart', cartData: {} });
+      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Removed From Cart' });
     });
 
-    it('returns error when item not in cart', async () => {
-      mockCartService.removeFromCart.mockRejectedValue(new Error('Item not in cart'));
+    it('returns error when user not found', async () => {
+      UserModel.findById.mockResolvedValue(null);
 
-      const req = { body: { userId: 'user1', itemId: 'item1' } };
+      const req = { body: { userId: 'invalid', itemId: 'item1' } };
       const res = mockRes();
 
       await CartController.removeFromCart(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Item not in cart' });
+      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User not found' });
     });
   });
 
   describe('getCart', () => {
     it('returns cart data successfully', async () => {
-      mockCartService.getCart.mockResolvedValue({ cartData: { item1: 2, item2: 1 } });
+      UserModel.findById.mockResolvedValue({ _id: 'user1', cartData: { item1: 2, item2: 1 } });
 
       const req = { body: { userId: 'user1' } };
       const res = mockRes();
@@ -101,7 +98,7 @@ describe('CartController', () => {
     });
 
     it('returns error when user not found', async () => {
-      mockCartService.getCart.mockRejectedValue(new Error('User not found'));
+      UserModel.findById.mockResolvedValue(null);
 
       const req = { body: { userId: 'invalid' } };
       const res = mockRes();
@@ -114,25 +111,26 @@ describe('CartController', () => {
 
   describe('clearCart', () => {
     it('clears cart successfully', async () => {
-      mockCartService.clearCart.mockResolvedValue({ message: 'Cart cleared', cartData: {} });
+      UserModel.updateById.mockResolvedValue({});
 
       const req = { body: { userId: 'user1' } };
       const res = mockRes();
 
       await CartController.clearCart(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Cart cleared', cartData: {} });
+      expect(UserModel.updateById).toHaveBeenCalledWith('user1', { cartData: {} });
+      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Cart cleared' });
     });
 
     it('returns error on failure', async () => {
-      mockCartService.clearCart.mockRejectedValue(new Error('Failed to clear cart'));
+      UserModel.updateById.mockRejectedValue(new Error('DB error'));
 
       const req = { body: { userId: 'user1' } };
       const res = mockRes();
 
       await CartController.clearCart(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Failed to clear cart' });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
   });
 });

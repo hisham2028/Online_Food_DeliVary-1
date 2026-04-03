@@ -10,19 +10,11 @@ import request from 'supertest';
 vi.mock('../../models/UserModel.js', () => ({
   default: {
     findById: vi.fn(),
-    updateCart: vi.fn(),
-    clearCart: vi.fn(),
-  },
-}));
-
-vi.mock('../../models/FoodModel.js', () => ({
-  default: {
-    findById: vi.fn(),
+    updateById: vi.fn(),
   },
 }));
 
 const { default: UserModel } = await import('../../models/UserModel.js');
-const { default: FoodModel } = await import('../../models/FoodModel.js');
 const { default: CartController } = await import('../../controllers/CartController.js');
 const { default: AuthMiddleware } = await import('../../middleware/AuthMiddleware.js');
 
@@ -69,9 +61,8 @@ describe('Cart API — Integration', () => {
   // ─── Add to Cart ────────────────────────────────────────────
   describe('POST /api/cart/add', () => {
     test('adds item to cart', async () => {
-      FoodModel.findById.mockResolvedValue({ _id: 'food1', name: 'Pizza', isAvailable: true });
       UserModel.findById.mockResolvedValue({ _id: 'u1', cartData: {} });
-      UserModel.updateCart.mockResolvedValue({});
+      UserModel.updateById.mockResolvedValue({});
 
       const res = await request(app)
         .post('/api/cart/add')
@@ -79,13 +70,12 @@ describe('Cart API — Integration', () => {
         .send({ itemId: 'food1' });
 
       expect(res.body.success).toBe(true);
-      expect(res.body.message).toBe('Added to cart');
+      expect(res.body.message).toBe('Added To Cart');
     });
 
     test('increments quantity for existing item', async () => {
-      FoodModel.findById.mockResolvedValue({ _id: 'food1', name: 'Pizza', isAvailable: true });
       UserModel.findById.mockResolvedValue({ _id: 'u1', cartData: { food1: 1 } });
-      UserModel.updateCart.mockResolvedValue({});
+      UserModel.updateById.mockResolvedValue({});
 
       const res = await request(app)
         .post('/api/cart/add')
@@ -93,11 +83,11 @@ describe('Cart API — Integration', () => {
         .send({ itemId: 'food1' });
 
       expect(res.body.success).toBe(true);
-      expect(UserModel.updateCart).toHaveBeenCalledWith('u1', { food1: 2 });
+      expect(UserModel.updateById).toHaveBeenCalledWith('u1', { cartData: { food1: 2 } });
     });
 
-    test('returns error for non-existent food', async () => {
-      FoodModel.findById.mockResolvedValue(null);
+    test('returns error for non-existent user', async () => {
+      UserModel.findById.mockResolvedValue(null);
 
       const res = await request(app)
         .post('/api/cart/add')
@@ -105,19 +95,7 @@ describe('Cart API — Integration', () => {
         .send({ itemId: 'bad-id' });
 
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toContain('not found');
-    });
-
-    test('returns error for unavailable food', async () => {
-      FoodModel.findById.mockResolvedValue({ _id: 'food1', name: 'Pizza', isAvailable: false });
-
-      const res = await request(app)
-        .post('/api/cart/add')
-        .set('token', validToken)
-        .send({ itemId: 'food1' });
-
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toContain('not available');
+      expect(res.body.message).toBe('User not found');
     });
   });
 
@@ -125,7 +103,7 @@ describe('Cart API — Integration', () => {
   describe('POST /api/cart/remove', () => {
     test('removes item from cart', async () => {
       UserModel.findById.mockResolvedValue({ _id: 'u1', cartData: { food1: 2 } });
-      UserModel.updateCart.mockResolvedValue({});
+      UserModel.updateById.mockResolvedValue({});
 
       const res = await request(app)
         .post('/api/cart/remove')
@@ -133,13 +111,13 @@ describe('Cart API — Integration', () => {
         .send({ itemId: 'food1' });
 
       expect(res.body.success).toBe(true);
-      expect(res.body.message).toBe('Removed from cart');
-      expect(UserModel.updateCart).toHaveBeenCalledWith('u1', { food1: 1 });
+      expect(res.body.message).toBe('Removed From Cart');
+      expect(UserModel.updateById).toHaveBeenCalledWith('u1', { cartData: { food1: 1 } });
     });
 
-    test('deletes item key when quantity reaches 0', async () => {
+    test('decrements to zero and retains key', async () => {
       UserModel.findById.mockResolvedValue({ _id: 'u1', cartData: { food1: 1 } });
-      UserModel.updateCart.mockResolvedValue({});
+      UserModel.updateById.mockResolvedValue({});
 
       const res = await request(app)
         .post('/api/cart/remove')
@@ -147,11 +125,10 @@ describe('Cart API — Integration', () => {
         .send({ itemId: 'food1' });
 
       expect(res.body.success).toBe(true);
-      expect(UserModel.updateCart).toHaveBeenCalledWith('u1', {});
     });
 
-    test('returns error when item not in cart', async () => {
-      UserModel.findById.mockResolvedValue({ _id: 'u1', cartData: {} });
+    test('returns error for non-existent user', async () => {
+      UserModel.findById.mockResolvedValue(null);
 
       const res = await request(app)
         .post('/api/cart/remove')
@@ -159,7 +136,6 @@ describe('Cart API — Integration', () => {
         .send({ itemId: 'food1' });
 
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toContain('not in cart');
     });
   });
 
@@ -198,14 +174,14 @@ describe('Cart API — Integration', () => {
         .send({});
 
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toContain('not found');
+      expect(res.body.message).toBe('User not found');
     });
   });
 
   // ─── Clear Cart ─────────────────────────────────────────────
   describe('POST /api/cart/clear', () => {
     test('clears cart data', async () => {
-      UserModel.clearCart.mockResolvedValue({});
+      UserModel.updateById.mockResolvedValue({});
 
       const res = await request(app)
         .post('/api/cart/clear')

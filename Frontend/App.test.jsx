@@ -1,49 +1,49 @@
 import { render, screen } from '@testing-library/react';
 import { describe, test, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import App from './App';
+import App from './src/App';
 
-vi.mock('./components/Navbar/Navbar', () => ({
+vi.mock('./src/components/Navbar/Navbar', () => ({
   default: ({ setShowLogin }) => <div data-testid="navbar">Navbar</div>
 }));
 
-vi.mock('./components/Footer/footer', () => ({
+vi.mock('./src/components/Footer/footer', () => ({
   default: () => <div data-testid="footer">Footer</div>
 }));
 
-vi.mock('./components/Login/login', () => ({
+vi.mock('./src/components/Login/login', () => ({
   default: ({ setShowLogin }) => <div data-testid="login">Login</div>
 }));
 
-vi.mock('./components/ScrollToTop/ScrollToTop', () => ({
+vi.mock('./src/components/ScrollToTop/ScrollToTop', () => ({
   default: () => null
 }));
 
-vi.mock('./components/BackToTop/BackToTop', () => ({
+vi.mock('./src/components/BackToTop/BackToTop', () => ({
   default: () => null
 }));
 
-vi.mock('./pages/Home/home', () => ({
+vi.mock('./src/pages/Home/home', () => ({
   default: () => <div data-testid="home">Home</div>
 }));
 
-vi.mock('./pages/Cart/cart', () => ({
+vi.mock('./src/pages/Cart/cart', () => ({
   default: () => <div data-testid="cart">Cart</div>
 }));
 
-vi.mock('./pages/Place Order/placeorder', () => ({
+vi.mock('./src/pages/Place Order/placeorder', () => ({
   default: () => <div data-testid="placeorder">PlaceOrder</div>
 }));
 
-vi.mock('./pages/verify/verify', () => ({
+vi.mock('./src/pages/verify/verify', () => ({
   default: () => <div data-testid="verify">Verify</div>
 }));
 
-vi.mock('./pages/myOrders/myorders', () => ({
+vi.mock('./src/pages/myOrders/myorders', () => ({
   default: () => <div data-testid="myorders">MyOrders</div>
 }));
 
-vi.mock('./pages/Menu/menu', () => ({
+vi.mock('./src/pages/Menu/menu', () => ({
   default: () => <div data-testid="menu">Menu</div>
 }));
 
