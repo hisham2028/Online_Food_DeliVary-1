@@ -1,37 +1,37 @@
-/**
- * FoodRepository — Repository Pattern
- *
- * Owns every food-related API call.
- * Components depend on this abstraction, never on raw HTTP.
- * To swap backends, change only this file.
- */
-class FoodRepository {
-  #api;
-
-  constructor(apiService) {
-    this.#api = apiService;
+export class FoodFormData {
+  constructor(overrides = {}) {
+    this.name = overrides.name ?? '';
+    this.description = overrides.description ?? '';
+    this.price = overrides.price ?? '';
+    this.category = overrides.category ?? 'Salad';
+    this.image = overrides.image ?? null;
   }
 
-  /** Fetch all food items. Returns raw array. */
-  async getAll() {
-    const data = await this.#api.get('/api/food/list');
-    if (!data.success) throw new Error('Failed to fetch food list');
-    return data.data;
+  static createEmpty() {
+    return new FoodFormData();
   }
 
-  /** Upload a new food item. @param {FormData} formData */
-  async add(formData) {
-    const data = await this.#api.postForm('/api/food/add', formData);
-    if (!data.success) throw new Error(data.message ?? 'Failed to add food item');
-    return data;
-  }
-
-  /** Remove a food item by id. */
-  async remove(foodId) {
-    const data = await this.#api.post('/api/food/remove', { id: foodId });
-    if (!data.success) throw new Error(data.message ?? 'Failed to remove food item');
-    return data;
+  toFormData() {
+    const fd = new FormData();
+    fd.append('name', this.name);
+    fd.append('description', this.description);
+    fd.append('price', this.price);
+    fd.append('category', this.category);
+    if (this.image) {
+      fd.append('image', this.image);
+    }
+    return fd;
   }
 }
 
-export default FoodRepository;
+const FoodFormFactory = {
+  create(overrides = {}) {
+    return new FoodFormData(overrides);
+  },
+
+  withField(formData, field, value) {
+    return new FoodFormData({ ...formData, [field]: value });
+  },
+};
+
+export default FoodFormFactory;

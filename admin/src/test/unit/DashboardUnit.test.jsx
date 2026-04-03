@@ -103,8 +103,8 @@ describe('Dashboard Page', () => {
         expect(screen.getByText('Total Revenue')).toBeInTheDocument();
         expect(screen.getByText('Total Orders')).toBeInTheDocument();
         expect(screen.getByText('Processing')).toBeInTheDocument();
-        expect(screen.getByText('Out for Delivery')).toBeInTheDocument();
-        expect(screen.getByText('Delivered')).toBeInTheDocument();
+        expect(screen.getAllByText('Out for Delivery').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Delivered').length).toBeGreaterThan(0);
       });
     });
 
