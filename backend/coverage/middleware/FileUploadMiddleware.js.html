@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -112,32 +112,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -152,33 +152,33 @@
 import multer from 'multer';
 &nbsp;
 class FileUploadMiddleware {
-<span class="fstat-no" title="function not covered" >  constructor(</span>) {
-<span class="cstat-no" title="statement not covered" >    this.uploadDir = 'uploads';</span>
-<span class="cstat-no" title="statement not covered" >    this.storage = multer.diskStorage({</span>
-      destination: <span class="fstat-no" title="function not covered" >(r</span>eq, file, cb) =&gt; {
-<span class="cstat-no" title="statement not covered" >        cb(null, this.uploadDir);</span>
+  constructor() {
+    this.uploadDir = 'uploads';
+    this.storage = multer.diskStorage({
+      destination: (req, file, cb) =&gt; {
+        cb(null, this.uploadDir);
       },
-      filename: <span class="fstat-no" title="function not covered" >(r</span>eq, file, cb) =&gt; {
-        const uniqueSuffix = <span class="cstat-no" title="statement not covered" >Date.now() + '-' + Math.round(Math.random() * 1E9);</span>
-        const ext = <span class="cstat-no" title="statement not covered" >file.originalname.split('.').pop();</span>
-<span class="cstat-no" title="statement not covered" >        cb(null, `${file.fieldname}-${uniqueSuffix}.${ext}`);</span>
+      filename: (req, file, cb) =&gt; {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = file.originalname.split('.').pop();
+        cb(null, `${file.fieldname}-${uniqueSuffix}.${ext}`);
       }
     });
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  upload(</span>fieldName = <span class="branch-0 cbranch-no" title="branch not covered" >'image')</span> {
-<span class="cstat-no" title="statement not covered" >    return multer({</span>
+  upload(fieldName = 'image') {
+    return multer({
       storage: this.storage,
       limits: {
         fileSize: 5 * 1024 * 1024 // 5MB
       },
-      fileFilter: <span class="fstat-no" title="function not covered" >(r</span>eq, file, cb) =&gt; {
-        const allowedTypes = <span class="cstat-no" title="statement not covered" >['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];</span>
+      fileFilter: (req, file, cb) =&gt; {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        if (allowedTypes.includes(file.mimetype)) {</span>
-<span class="cstat-no" title="statement not covered" >          cb(null, true);</span>
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
         } else {
-<span class="cstat-no" title="statement not covered" >          cb(new Error('Invalid file type. Only JPEG, PNG and WebP allowed'), false);</span>
+          cb(new Error('Invalid file type. Only JPEG, PNG and WebP allowed'), false);
         }
       }
     }).single(fieldName);
@@ -193,7 +193,7 @@ export default new FileUploadMiddleware();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-03T14:37:31.196Z
+                at 2026-04-03T14:50:14.534Z
             </div>
         <script src="../prettify.js"></script>
         <script>

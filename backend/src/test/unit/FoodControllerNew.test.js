@@ -58,13 +58,31 @@ describe('FoodController', () => {
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
 
-    it('returns 400 when name is missing', async () => {
-      const req = { body: { price: '10' }, file: { filename: 'a.jpg' } };
+    it('handles ValidationError in addFood', async () => {
+      const validationError = {
+        name: 'ValidationError',
+        errors: { price: { message: 'Price must be positive' } }
+      };
+      FoodModel.create.mockRejectedValue(validationError);
+
+      const req = { body: { name: 'Pizza', price: '-1', category: 'Italian' }, file: { filename: 'pizza.png' } };
       const res = mockRes();
 
       await FoodController.addFood(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Validation error' }));
+    });
+
+    it('returns 500 on generic server error in addFood', async () => {
+      FoodModel.create.mockRejectedValue(new Error('DB connection lost'));
+
+      const req = { body: { name: 'Pizza', price: '10' }, file: { filename: 'pizza.png' } };
+      const res = mockRes();
+
+      await FoodController.addFood(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 
@@ -129,6 +147,33 @@ describe('FoodController', () => {
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
+
+    it('returns 500 on unexpected error in removeFood', async () => {
+      FoodModel.findById.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { id: 'food1' } };
+      const res = mockRes();
+
+      await FoodController.removeFood(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    it('deletes image file when food has an image and file exists on disk', async () => {
+      const { existsSync } = await import('fs');
+      const { unlink } = await import('fs/promises');
+      existsSync.mockReturnValue(true);
+      FoodModel.findById.mockResolvedValue({ _id: 'food1', image: 'pizza.jpg' });
+      FoodModel.deleteById.mockResolvedValue({});
+
+      const req = { body: { id: 'food1' } };
+      const res = mockRes();
+
+      await FoodController.removeFood(req, res);
+
+      expect(unlink).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Food item removed successfully' });
+    });
   });
 
   describe('searchFood', () => {
@@ -154,6 +199,17 @@ describe('FoodController', () => {
 
       expect(res.json).toHaveBeenCalledWith({ success: true, data: [] });
     });
+
+    it('returns 500 on error in searchFood', async () => {
+      FoodModel.search.mockRejectedValue(new Error('DB error'));
+
+      const req = { query: { query: 'pizza' } };
+      const res = mockRes();
+
+      await FoodController.searchFood(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
   });
 
   describe('updateFood', () => {
@@ -173,6 +229,25 @@ describe('FoodController', () => {
       });
     });
 
+    it('updates image filename when file is provided', async () => {
+      const updated = { _id: 'food1', image: 'new.jpg' };
+      FoodModel.updateById.mockResolvedValue(updated);
+
+      const req = {
+        params: { id: 'food1' },
+        body: { name: 'Pizza' },
+        file: { filename: 'new.jpg' }
+      };
+      const res = mockRes();
+
+      await FoodController.updateFood(req, res);
+
+      expect(FoodModel.updateById).toHaveBeenCalledWith(
+        'food1',
+        expect.objectContaining({ image: 'new.jpg' })
+      );
+    });
+
     it('returns 404 when food not found', async () => {
       FoodModel.updateById.mockResolvedValue(null);
 
@@ -182,6 +257,30 @@ describe('FoodController', () => {
       await FoodController.updateFood(req, res);
 
       expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('handles ValidationError in updateFood', async () => {
+      const validationError = { name: 'ValidationError', errors: { price: { message: 'Price required' } } };
+      FoodModel.updateById.mockRejectedValue(validationError);
+
+      const req = { params: { id: 'food1' }, body: {}, file: null };
+      const res = mockRes();
+
+      await FoodController.updateFood(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'Validation error' }));
+    });
+
+    it('returns 500 on generic error in updateFood', async () => {
+      FoodModel.updateById.mockRejectedValue(new Error('DB error'));
+
+      const req = { params: { id: 'food1' }, body: {}, file: null };
+      const res = mockRes();
+
+      await FoodController.updateFood(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 });

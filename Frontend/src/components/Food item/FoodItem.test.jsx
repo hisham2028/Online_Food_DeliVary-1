@@ -72,6 +72,20 @@ describe('FoodItem Component', () => {
     expect(mockRemoveFromCart).toHaveBeenCalledWith('1');
   });
 
+  test('calls addToCart when counter plus button is clicked (quantity > 0)', () => {
+    const mockAddToCart = vi.fn();
+    const context = { ...mockContextValue, cartItems: { '1': 2 }, addToCart: mockAddToCart };
+    renderWithContext(
+      <FoodItem id="1" name="Caesar Salad" price={12} description="Fresh salad" image="salad.jpg" />,
+      context
+    );
+    // When quantity > 0, there are two + buttons aren't present; the counter shows - value +
+    // Get the + button (counter plus button)
+    const plusButtons = screen.getAllByText('+');
+    fireEvent.click(plusButtons[0]);
+    expect(mockAddToCart).toHaveBeenCalledWith('1');
+  });
+
   test('renders image with correct src', () => {
     renderWithContext(
       <FoodItem id="1" name="Caesar Salad" price={12} description="Fresh salad" image="salad.jpg" />

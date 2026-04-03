@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">18.18% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.11% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/9</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">18.18% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -121,7 +121,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -133,40 +133,40 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -190,37 +190,37 @@ class UserModel {
     this.model = mongoose.models.user || mongoose.model("user", this.schema);
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >create(</span>userData) {
-    const user = <span class="cstat-no" title="statement not covered" >new this.model(userData);</span>
-<span class="cstat-no" title="statement not covered" >    return await user.save();</span>
+  async create(userData) {
+    const user = new this.model(userData);
+    return await user.save();
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >findById(</span>id) {
-<span class="cstat-no" title="statement not covered" >    return await this.model.findById(id);</span>
+  async findById(id) {
+    return await this.model.findById(id);
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >findByEmail(</span>email) {
-<span class="cstat-no" title="statement not covered" >    return await this.model.findOne({ email });</span>
+  async findByEmail(email) {
+    return await this.model.findOne({ email });
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >updateById(</span>id, updateData) {
-<span class="cstat-no" title="statement not covered" >    return await this.model.findByIdAndUpdate(id, updateData, { new: true });</span>
+  async updateById(id, updateData) {
+    return await this.model.findByIdAndUpdate(id, updateData, { new: true });
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >deleteById(</span>id) {
-<span class="cstat-no" title="statement not covered" >    return await this.model.findByIdAndDelete(id);</span>
+  async deleteById(id) {
+    return await this.model.findByIdAndDelete(id);
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >updateCart(</span>userId, cartData) {
-<span class="cstat-no" title="statement not covered" >    return await this.model.findByIdAndUpdate(userId, { cartData }, { new: true });</span>
+  async updateCart(userId, cartData) {
+    return await this.model.findByIdAndUpdate(userId, { cartData }, { new: true });
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >clearCart(</span>userId) {
-<span class="cstat-no" title="statement not covered" >    return await this.model.findByIdAndUpdate(userId, { cartData: {} }, { new: true });</span>
+  async clearCart(userId) {
+    return await this.model.findByIdAndUpdate(userId, { cartData: {} }, { new: true });
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  getModel(</span>) {
-<span class="cstat-no" title="statement not covered" >    return this.model;</span>
+  getModel() {
+    return this.model;
   }
 }
 &nbsp;
@@ -232,7 +232,7 @@ export default new UserModel();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-03T14:37:31.196Z
+                at 2026-04-03T14:50:14.534Z
             </div>
         <script src="../prettify.js"></script>
         <script>

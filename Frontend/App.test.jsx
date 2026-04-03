@@ -1,10 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, test, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import App from './src/App';
 
 vi.mock('./src/components/Navbar/Navbar', () => ({
-  default: ({ setShowLogin }) => <div data-testid="navbar">Navbar</div>
+  default: ({ setShowLogin }) => (
+    <div data-testid="navbar">
+      <button data-testid="open-login" onClick={() => setShowLogin(true)}>Sign In</button>
+    </div>
+  )
 }));
 
 vi.mock('./src/components/Footer/footer', () => ({
@@ -65,6 +69,18 @@ describe('App Component', () => {
       </MemoryRouter>
     );
     expect(screen.queryByTestId('login')).not.toBeInTheDocument();
+  });
+
+  test('shows Login modal when setShowLogin(true) is called via Navbar', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByTestId('login')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('open-login'));
+    expect(screen.getByTestId('login')).toBeInTheDocument();
   });
 
   test('renders Home page on root route', () => {

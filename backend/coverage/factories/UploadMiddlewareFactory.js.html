@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -132,14 +132,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,25 +154,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -190,12 +190,12 @@ import DocumentValidationStrategy from '../strategies/fileUpload/DocumentValidat
  * Factory: creates multer middleware functions with preset configuration.
  */
 export default class UploadMiddlewareFactory {
-<span class="fstat-no" title="function not covered" >  constructor(</span>{ storage }) {
-<span class="cstat-no" title="statement not covered" >    if (!storage) <span class="cstat-no" title="statement not covered" >throw new Error('UploadMiddlewareFactory requires a multer storage instance');</span></span>
-<span class="cstat-no" title="statement not covered" >    this.storage = storage;</span>
+  constructor({ storage }) {
+    if (!storage) throw new Error('UploadMiddlewareFactory requires a multer storage instance');
+    this.storage = storage;
 &nbsp;
     // Presets map to a Strategy + limits.
-<span class="cstat-no" title="statement not covered" >    this.presets = {</span>
+    this.presets = {
       image: {
         strategy: new ImageValidationStrategy(),
         limits: { fileSize: 5 * 1024 * 1024 }
@@ -215,26 +215,26 @@ export default class UploadMiddlewareFactory {
    * Create a single-file upload middleware.
    * @param {{preset?: string, fieldName?: string, strategy?: any, limits?: any}} options
    */
-<span class="fstat-no" title="function not covered" >  create(</span>options = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
-    const { preset = <span class="branch-0 cbranch-no" title="branch not covered" >'image',</span> fieldName = <span class="branch-0 cbranch-no" title="branch not covered" >'file',</span> strategy, limits } = <span class="cstat-no" title="statement not covered" >options;</span>
+  create(options = {}) {
+    const { preset = 'image', fieldName = 'file', strategy, limits } = options;
 &nbsp;
-    const presetConfig = <span class="cstat-no" title="statement not covered" >this.presets[preset];</span>
-<span class="cstat-no" title="statement not covered" >    if (!presetConfig &amp;&amp; !strategy) {</span>
-<span class="cstat-no" title="statement not covered" >      throw new Error(`Unknown upload preset: ${preset}`);</span>
+    const presetConfig = this.presets[preset];
+    if (!presetConfig &amp;&amp; !strategy) {
+      throw new Error(`Unknown upload preset: ${preset}`);
     }
 &nbsp;
-    const usedStrategy = <span class="cstat-no" title="statement not covered" >strategy ?? presetConfig.strategy;</span>
-    const usedLimits = <span class="cstat-no" title="statement not covered" >limits ?? presetConfig.limits;</span>
+    const usedStrategy = strategy ?? presetConfig.strategy;
+    const usedLimits = limits ?? presetConfig.limits;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return multer({</span>
+    return multer({
       storage: this.storage,
       limits: usedLimits,
-      fileFilter: <span class="fstat-no" title="function not covered" >(r</span>eq, file, cb) =&gt; {
-<span class="cstat-no" title="statement not covered" >        try {</span>
-<span class="cstat-no" title="statement not covered" >          usedStrategy.validate(file);</span>
-<span class="cstat-no" title="statement not covered" >          cb(null, true);</span>
+      fileFilter: (req, file, cb) =&gt; {
+        try {
+          usedStrategy.validate(file);
+          cb(null, true);
         } catch (err) {
-<span class="cstat-no" title="statement not covered" >          cb(err, false);</span>
+          cb(err, false);
         }
       }
     }).single(fieldName);
@@ -247,7 +247,7 @@ export default class UploadMiddlewareFactory {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-03T14:37:31.196Z
+                at 2026-04-03T14:50:14.534Z
             </div>
         <script src="../prettify.js"></script>
         <script>

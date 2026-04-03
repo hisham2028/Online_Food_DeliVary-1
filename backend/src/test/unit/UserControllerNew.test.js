@@ -171,5 +171,104 @@ describe('UserController', () => {
 
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
+
+    it('returns 500 on server error', async () => {
+      UserModel.findById.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { userId: 'u1' } };
+      const res = mockRes();
+
+      await UserController.getUserProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('login - server error', () => {
+    it('returns 500 on unexpected error', async () => {
+      UserModel.findByEmail.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { email: 'test@example.com', password: 'password123' } };
+      const res = mockRes();
+
+      await UserController.login(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('register - server error', () => {
+    it('returns 500 on unexpected error', async () => {
+      validator.isEmail.mockReturnValue(true);
+      UserModel.findByEmail.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { name: 'Test', email: 'test@example.com', password: 'password123' } };
+      const res = mockRes();
+
+      await UserController.register(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('updates profile name successfully', async () => {
+      const updatedUser = { _id: 'u1', name: 'Updated Name', email: 'test@example.com' };
+      UserModel.updateById.mockResolvedValue({
+        ...updatedUser,
+        toObject() { return updatedUser; }
+      });
+
+      const req = { body: { userId: 'u1', name: 'Updated Name' } };
+      const res = mockRes();
+
+      await UserController.updateProfile(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({
+        success: true,
+        message: 'Profile updated successfully',
+        data: updatedUser
+      });
+    });
+
+    it('returns 400 when name is missing', async () => {
+      const req = { body: { userId: 'u1', name: '' } };
+      const res = mockRes();
+
+      await UserController.updateProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('returns 400 when name is whitespace only', async () => {
+      const req = { body: { userId: 'u1', name: '   ' } };
+      const res = mockRes();
+
+      await UserController.updateProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('returns 404 when user not found', async () => {
+      UserModel.updateById.mockResolvedValue(null);
+
+      const req = { body: { userId: 'invalid', name: 'Alice' } };
+      const res = mockRes();
+
+      await UserController.updateProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('returns 500 on server error', async () => {
+      UserModel.updateById.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { userId: 'u1', name: 'Alice' } };
+      const res = mockRes();
+
+      await UserController.updateProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
   });
 });

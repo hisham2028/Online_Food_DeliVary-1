@@ -58,6 +58,17 @@ describe('CartController', () => {
 
       expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User not found' });
     });
+
+    it('returns error on unexpected exception', async () => {
+      UserModel.findById.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { userId: 'user1', itemId: 'item1' } };
+      const res = mockRes();
+
+      await CartController.addToCart(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+    });
   });
 
   describe('removeFromCart', () => {
@@ -83,6 +94,17 @@ describe('CartController', () => {
 
       expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User not found' });
     });
+
+    it('returns error on unexpected exception', async () => {
+      UserModel.findById.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { userId: 'user1', itemId: 'item1' } };
+      const res = mockRes();
+
+      await CartController.removeFromCart(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+    });
   });
 
   describe('getCart', () => {
@@ -106,6 +128,17 @@ describe('CartController', () => {
       await CartController.getCart(req, res);
 
       expect(res.json).toHaveBeenCalledWith({ success: false, message: 'User not found' });
+    });
+
+    it('returns error on unexpected exception', async () => {
+      UserModel.findById.mockRejectedValue(new Error('DB error'));
+
+      const req = { body: { userId: 'user1' } };
+      const res = mockRes();
+
+      await CartController.getCart(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
     });
   });
 
